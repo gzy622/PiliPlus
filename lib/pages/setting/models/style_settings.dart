@@ -217,6 +217,22 @@ List<SettingsModel> get styleSettings => [
     defaultVal: PlatformUtils.isMobile,
     needReboot: true,
   ),
+  const SwitchModel(
+    title: '隐藏首页搜索框',
+    subtitle: '开启后首页顶部仅隐藏搜索输入框，右侧消息和头像位置不变',
+    leading: Icon(Icons.search_off_outlined),
+    setKey: SettingBoxKey.hideHomeSearch,
+    defaultVal: false,
+    needReboot: true,
+  ),
+  const SwitchModel(
+    title: '隐藏“我的”页搜索按钮',
+    subtitle: '开启后隐藏“我的”页顶部搜索按钮，其他按钮位置不变',
+    leading: Icon(Icons.person_search_outlined),
+    setKey: SettingBoxKey.hideMineSearch,
+    defaultVal: false,
+    needReboot: true,
+  ),
   NormalModel(
     onTap: (context, setState) => _showQualityDialog(
       context: context,

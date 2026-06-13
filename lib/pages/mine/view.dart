@@ -20,6 +20,7 @@ import 'package:PiliPlus/utils/extension/num_ext.dart';
 import 'package:PiliPlus/utils/extension/theme_ext.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/storage.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart' hide ListTile;
 import 'package:get/get.dart';
@@ -153,14 +154,17 @@ class _MediaPageState extends CommonPageState<MinePage>
             ),
           ),
         if (!_mainController.hasHome) ...[
-          IconButton(
-            iconSize: iconSize,
-            padding: padding,
-            style: style,
-            tooltip: '搜索',
-            onPressed: () => Get.toNamed('/search'),
-            icon: const Icon(Icons.search),
-          ),
+          if (Pref.hideMineSearch)
+            const SizedBox(width: 48)
+          else
+            IconButton(
+              iconSize: iconSize,
+              padding: padding,
+              style: style,
+              tooltip: '搜索',
+              onPressed: () => Get.toNamed('/search'),
+              icon: const Icon(Icons.search),
+            ),
           msgBadge(_mainController),
         ],
         if (GStorage.reply != null)

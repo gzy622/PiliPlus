@@ -22,6 +22,7 @@ class HomeController extends GetxController
 
   RxBool? showTopBar;
   late final bool hideTopBar;
+  late final bool hideHomeSearch = Pref.hideHomeSearch;
 
   bool enableSearchWord = Pref.enableSearchWord;
   late final RxString defaultSearch = ''.obs;

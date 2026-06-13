@@ -1,253 +1,675 @@
-<div align="center">
-    <img width="200" height="200" src="assets/images/logo/logo.png">
-</div>
-
-
+# PiliPlus — 代码架构地图
 
 <div align="center">
-    <h1>PiliPlus</h1>
-<div align="center">
-    
-![GitHub repo size](https://img.shields.io/github/repo-size/bggRGjQaUbCoE/PiliPlus) 
-![GitHub Repo stars](https://img.shields.io/github/stars/bggRGjQaUbCoE/PiliPlus) 
-![GitHub all releases](https://img.shields.io/github/downloads/bggRGjQaUbCoE/PiliPlus/total) 
-</div>
-    <p>使用Flutter开发的BiliBili第三方客户端</p>
-    
-<img src="assets/screenshots/510shots_so.png" width="32%" alt="home" />
-<img src="assets/screenshots/174shots_so.png" width="32%" alt="home" />
-<img src="assets/screenshots/850shots_so.png" width="32%" alt="home" />
-<br/>
-<img src="assets/screenshots/main_screen.png" width="96%" alt="home" />
-<br/>
+  <img width="100" src="assets/images/logo/logo.png">
+  <p><strong>使用 Flutter 开发的 BiliBili 第三方客户端</strong></p>
+  <p>v2.0.9+1 · Flutter 3.44.2 · Dart >=3.12.0 · GetX · media_kit</p>
 </div>
 
+---
 
-<br/>
+## 📋 目录
 
-## 适配平台
+- [项目概览](#一项目概览)
+- [应用启动链](#二应用启动链)
+- [分层架构总览](#三分层架构总览)
+- [网络层详解](#四网络层详解)
+- [页面模块地图](#五页面模块地图)
+- [播放器架构](#六播放器架构)
+- [数据模型层](#七数据模型层)
+- [服务层](#八服务层)
+- [Utils 工具层](#九utils-工具层)
+- [关键架构决策](#十关键架构决策)
+- [Flutter 源码覆写](#十一flutter-源码覆写)
+- [致谢](#致谢)
 
-- [x] Android
-- [x] iOS
-- [x] Pad
-- [x] Windows
-- [x] Linux
+---
 
-[![Packaging status](https://repology.org/badge/vertical-allrepos/piliplus.svg)](https://repology.org/project/piliplus/versions)
+## 一、项目概览
 
-## refactor
+| 属性 | 内容 |
+|------|------|
+| 项目名 | PiliPlus |
+| 技术栈 | Flutter 3.44.2 / Dart >=3.12.0 |
+| 状态管理 | GetX (GetMaterialApp + GetxController + Obx/Rx) |
+| 播放引擎 | media_kit (libmpv) |
+| 网络层 | Dio (REST) + 自研 Protobuf-over-HTTP (gRPC) |
+| 持久化 | Hive CE (GetStorage 封装) |
+| 代码量 | ~108 页面文件、28 REST 服务、7 gRPC 服务 |
+| 平台 | ✅ Android · ✅ iOS · ✅ Pad · ✅ Windows · ✅ macOS · ✅ Linux |
 
-- [ ] gRPC [wip]
-- [x] 用户界面
-- [x] 其他
+---
 
-## feat
+## 二、应用启动链
 
-- [x] 编辑动态
-- [x] DLNA 投屏
-- [x] 离线缓存/播放
-- [x] 移动端支持点击弹幕悬停，点赞、复制、举报 by [@My-Responsitories](https://github.com/My-Responsitories)
-- [x] 播放音频
-- [x] 跳过番剧片头/片尾
-- [x] 安卓端 `loudnorm` 适配 by [@My-Responsitories](https://github.com/My-Responsitories)
-- [x] Win/Mac 支持极验、短信登录 by [@My-Responsitories](https://github.com/My-Responsitories)
-- [x] 视频截取动图 by [@My-Responsitories](https://github.com/My-Responsitories)
-- [x] AI 原声翻译
-- [x] SuperChat
-- [x] 播放课堂视频
-- [x] 发起投票
-- [x] 发布动态/评论支持`富文本编辑`/`表情显示`/`@用户`
-- [x] 修改消息设置
-- [x] 修改聊天设置
-- [x] 展示折叠消息
-- [x] 查看用户图文
-- [x] 动态话题
-- [x] 直播分区
-- [x] 分享`视频`/`番剧`/`动态`/`专栏`/`直播`至消息
-- [x] 创建/修改/删除关注分组
-- [x] 移除粉丝
-- [x] 直播弹幕发送表情
-- [x] 收藏夹排序
-- [x] 稍后再看 ~~`未看`~~ / `未看完` / ~~`已看完`~~ 分类
-- [x] WebDAV 备份/恢复设置
-- [x] 保存评论/动态
-- [x] 高级弹幕 by [@My-Responsitories](https://github.com/My-Responsitories)
-- [x] 取消/置顶评论
-- [x] 记笔记
-- [x] 多账号支持 by [@My-Responsitories](https://github.com/My-Responsitories)
-- [x] 屏蔽带货动态/评论
-- [x] 互动视频
-- [x] 发评/动态反诈
-- [x] 高能进度条
-- [x] 滑动跳转预览视频缩略图
-- [x] Live Photo
-- [x] 复制/移动/排序收藏夹/稍后再看视频
-- [x] 超分辨率
-- [x] 合并弹幕
-- [x] 会员彩色弹幕
-- [x] 播放全部/继续播放/倒序播放
-- [x] Cookie登录
-- [x] 显示视频分段信息
-- [x] 调节字幕大小
-- [x] 调节全屏弹幕大小
-- [x] 收藏夹/稍后再看多选删除
-- [x] 搜索用户动态
-- [x] 直播弹幕
-- [x] 修改头像/用户名/签名/性别/生日
-- [x] 创建/编辑/删除收藏夹
-- [x] 评论楼中楼查看对话
-- [x] 评论楼中楼定位点击查看的评论
-- [x] 评论楼中楼按热度/时间排序
-- [x] 评论点踩
-- [x] 私信发图
-- [x] 投币动画
-- [x] 取消/追番，更新追番状态
-- [x] 取消/订阅合集
-- [x] SponsorBlock
-- [x] 显示视频完整合集
-- [x] 三连动画
-- [x] 番剧三连
-- [x] 带图评论
-- [x] 视频TAG
-- [x] 筛选搜索
-- [x] 转发动态
-- [x] 合集图片
-- [x] 删除/置顶/撤回私信
-- [x] 举报用户/评论/视频/动态
-- [x] 删除/发布/置顶文本/图片动态
-- [x] 其他
+`lib/main.dart` 中的初始化顺序（CodeGraph 静态追踪验证）：
 
-## opt
+```
+main()
+├─ 1. ScaledWidgetsFlutterBinding.ensureInitialized()
+├─ 2. MediaKit.ensureInitialized()              ← libmpv 引擎
+├─ 3. _initAppPath()                            ← 应用目录
+├─ 4. GStorage.init()                           ← Hive CE 本地存储
+├─ 5. UI Scale = Pref.uiScale
+├─ 6. Parallel: _initDownPath / _initTmpPath / CacheManager
+├─ 7. Get.lazyPut(AccountService.new)
+├─ 8. Get.lazyPut(DownloadService.new)
+├─ 9. HttpOverrides.global                      ← 自定义证书
+├─ 10. CacheManager.autoClearCache()
+├─ 11. 平台初始化: orientation / webview / audio service
+├─ 12. Request() 构造函数                        ← Dio 单例就绪
+├─ 13. Request.setCookie() + RequestUtils.syncHistoryStatus()
+├─ 14. SmartDialog 配置
+├─ 15. 桌面端: windowManager 初始化 + 窗口位置恢复
+├─ 16. DynamicColor (如启用)
+├─ 17. runApp(const MyApp())
+│
+└─ MyApp (GetMaterialApp)
+    └─ initialRoute: '/'
+        └─ Routes.getPages
+            └─ '/' → MainApp (底部导航壳)
+                 ├─ /home    → HomePage       ← 首页推荐
+                 ├─ /dynamics → DynamicsPage   ← 动态
+                 ├─ /follow  → FollowPage      ← 关注
+                 └─ /mine    → MinePage        ← 我的
+```
 
-- [x] 专栏界面
-- [x] 私信界面
-- [x] 收藏面板
-- [x] PIP
-- [x] 视频封面
-- [x] 回复界面
-- [x] 系统通知
-- [x] 评论显示
-- [x] 亮度调节
-- [x] 视频播放
-- [x] 视频staff
-- [x] 防止bottomsheet遮挡全屏视频
-- [x] 其他
+**启动链关键观察：**
+- `Get.lazyPut` 延迟注入服务，首次访问时才创建实例
+- Dio 单例 (`Request`) 在 main 的后期初始化，此时存储/账号系统已就绪
+- 桌面端在 `runApp` **之后**才异步初始化 `windowManager`，避免阻塞首帧
 
-## fix
+---
 
-- [x] 番剧分集点赞/投币/收藏
-- [x] bugs
+## 三、分层架构总览
 
-<br/>
+```
+┌───────────────────────────────────────────────────────────────────────┐
+│                          UI Layer (Pages)                             │
+│  主壳: lib/pages/main/view.dart (MainApp)                            │
+│  ├─ 首页推荐   lib/pages/home/                                        │
+│  ├─ 视频详情   lib/pages/video/          ← 最大模块 (~30 文件)        │
+│  ├─ 直播间     lib/pages/live_room/                                   │
+│  ├─ 搜索       lib/pages/search/ + search_panel/ + search_result/     │
+│  ├─ 动态       lib/pages/dynamics/ + dynamics_detail/                 │
+│  ├─ 用户空间   lib/pages/member/ + member_*/                          │
+│  ├─ 私信       lib/pages/whisper/ + whisper_detail/                   │
+│  ├─ 设置       lib/pages/setting/            ← ~20 子页面             │
+│  └─ 更多 50+ 页: 番剧/收藏/历史/稍后再看/排行榜/订阅/音乐/文章...     │
+│  模式: 每页三层 —— controller.dart + view.dart + widgets/              │
+├───────────────────────────────────────────────────────────────────────┤
+│                       Common / Widgets 层                              │
+│  lib/common/widgets/                                                  │
+│  ├─ badge / avatars / buttons / toast / tooltip / dialog              │
+│  ├─ floating_navigation_bar (底部导航, 24063 bytes)                   │
+│  ├─ draggable_sheet / dynamic_sliver_app_bar                          │
+│  ├─ skeleton/                     ← 骨架屏组件                        │
+│  └─ flutter/                      ← Flutter 原生组件覆写              │
+│       ├─ text_field/              ← 大段覆写 (editable_text 272KB)   │
+│       ├─ page/                    ← PageView / Scrollable 覆写        │
+│       ├─ tabs.dart / list_tile.dart / refresh_indicator.dart          │
+│       └─ text/                    ← RichText / Paragraph 覆写         │
+├───────────────────────────────────────────────────────────────────────┤
+│                      Network Layer                                    │
+│  ┌─────────────────────────┐    ┌──────────────────────────────────┐  │
+│  │  REST (Dio)             │    │  gRPC (Protobuf-over-HTTP)       │  │
+│  │  lib/http/              │    │  lib/grpc/                       │  │
+│  │                         │    │                                  │  │
+│  │  Request 单例 ──────────┼────┤  GrpcReq.request()               │  │
+│  │  (lib/http/init.dart)   │    │  内部调用 Request().post()        │  │
+│  │                         │    │  + protobuf 编解码               │  │
+│  │  28 个服务文件           │    │  7 个已迁移服务                   │  │
+│  │  180+ REST 端点         │    │  15 个 proto 命名空间             │  │
+│  └─────────────────────────┘    └──────────────────────────────────┘  │
+├───────────────────────────────────────────────────────────────────────┤
+│                       Models / Data 层                                 │
+│  ├─ lib/models/              ← 手写 JSON 模型类                      │
+│  │     common/ (枚举/常量 ~60 文件)                                   │
+│  │     user/ member/ search/ dynamics/ home/ video/ login/            │
+│  └─ lib/grpc/bilibili/       ← protoc 生成的 .pb.dart 模型           │
+│        app/viewunite/ app/dynamic/ app/im/ app/playurl/               │
+│        community/dm/ main/community/reply/ metadata/ ...              │
+├───────────────────────────────────────────────────────────────────────┤
+│                       Services 层                                      │
+│  lib/services/                                                       │
+│  ├─ account_service.dart     ← 账号生命周期管理                      │
+│  ├─ audio_handler.dart       ← 后台音频播放 (AudioService)           │
+│  ├─ audio_session.dart       ← 音频会话 (中断/耳机拔出)              │
+│  ├─ download/                ← 下载服务 + 管理器                     │
+│  ├─ shutdown_timer_service   ← 定时关机                              │
+│  ├─ logger.dart              ← 日志记录                              │
+│  └─ service_locator.dart     ← GetX 服务定位器                       │
+├───────────────────────────────────────────────────────────────────────┤
+│                     Plugin / Player 层                                 │
+│  lib/plugin/pl_player/                                               │
+│  ├─ controller.dart (55KB)   ← 核心控制器 (单例)                     │
+│  ├─ view/view.dart (89KB)    ← 播放器 UI                             │
+│  ├─ models/                  ← DataSource / 播放状态 / 全屏模式...    │
+│  ├─ utils/                   ← 全屏工具 / 弹幕配置                   │
+│  └─ widgets/                 ← 控制按钮 / 进度 / 画中画              │
+├───────────────────────────────────────────────────────────────────────┤
+│                       Utils 工具层                                     │
+│  lib/utils/                                                          │
+│  ├─ accounts/                ← 多账号管理、gRPC 请求头、Cookie        │
+│  ├─ extension/               ← context_ext / theme_ext / num_ext 等  │
+│  ├─ storage*.dart            ← Hive CE 持久化封装 (storage_pref 36K) │
+│  ├─ page_utils.dart (23K)    ← 页面跳转工具                          │
+│  ├─ request_utils.dart (21K) ← 请求工具                              │
+│  ├─ image_utils.dart (10K)   ← 图片处理                              │
+│  ├─ wbi_sign.dart            ← B 站 WBI 签名                         │
+│  └─ ... 30+ 工具文件                                                │
+├───────────────────────────────────────────────────────────────────────┤
+│                       TCP / WebSocket                                 │
+│  lib/tcp/live.dart ← 直播弹幕 WebSocket 连接                         │
+└───────────────────────────────────────────────────────────────────────┘
+```
 
-## 功能
+---
 
-- [x] 推荐视频列表(app端)
-- [x] 最热视频列表
-- [x] 热门直播
-- [x] 番剧列表
-- [x] 屏蔽黑名单内用户视频
-- [x] 无痕模式（播放视为未登录）
-- [x] 游客模式（推荐视为未登录）
+## 四、网络层详解
 
-- [x] 用户相关
-  - [x] 粉丝、关注用户、拉黑用户查看
-  - [x] 用户主页查看
-  - [x] 关注/取关用户
-  - [x] 离线缓存
-  - [x] 稍后再看
-  - [x] 观看记录
-  - [x] 我的收藏
-  - [x] 站内私信
-  
-- [x] 动态相关
-  - [x] 全部、投稿、番剧分类查看
-  - [x] 动态评论查看
-  - [x] 动态评论回复功能
+### 4.1 REST 层 (`lib/http/`) — 28 个服务文件
 
-- [x] 视频播放相关
-  - [x] 双击快进/快退
-  - [x] 双击播放/暂停
-  - [x] 垂直方向调节亮度/音量
-  - [x] 垂直方向上滑全屏、下滑退出全屏
-  - [x] 水平方向手势快进/快退
-  - [x] 全屏方向设置
-  - [x] 倍速选择/长按2倍速
-  - [x] 硬件加速（视机型而定）
-  - [x] 画质选择（高清画质未解锁）
-  - [x] 音质选择（视视频而定）
-  - [x] 解码格式选择（视视频而定）
-  - [x] 弹幕
-  - [x] 字幕
-  - [x] 记忆播放
-  - [x] 视频比例：高度/宽度适应、填充、包含等
-     
-- [x] 搜索相关
-  - [x] 热搜
-  - [x] 搜索历史
-  - [x] 默认搜索词
-  - [x] 投稿、番剧、直播间、用户搜索
-  - [x] 视频搜索排序、按时长筛选
-    
-- [x] 视频详情页相关
-  - [x] 视频选集(分p)切换
-  - [x] 点赞、投币、收藏/取消收藏
-  - [x] 相关视频查看
-  - [x] 评论用户身份标识
-  - [x] 评论(排序)查看、二楼评论查看
-  - [x] 主楼、二楼评论回复功能
-  - [x] 评论点赞
-  - [x] 评论笔记图片查看、保存
+所有服务类均为 `abstract final class`，仅包含 `static` 方法。
 
-- [x] 设置相关
-  - [x] 画质、音质、解码方式预设      
-  - [x] 图片质量设定
-  - [x] 主题模式：亮色/暗色/跟随系统
-  - [x] 震动反馈(可选)
-  - [x] 高帧率
-  - [x] 自动全屏
-  - [x] 横屏适配
-- [ ] 等等
+```
+lib/http/
+├── init.dart              ← Request 单例: Dio 封装、HTTP/2、重试、Cookie、WBI
+├── api.dart (~1011 行)    ← 所有 REST URL 常量
+├── constants.dart         ← 基础 URL (api/app/live/passport/base)
+│
+├── video.dart             VideoHttp     ← 推荐/播放地址/三连/点赞/投币/心跳
+├── live.dart              LiveHttp      ← 直播间/播放地址/弹幕 Token
+├── search.dart            SearchHttp    ← 综合搜索/建议/热搜
+├── reply.dart             ReplyHttp     ← 评论增删改查赞踩
+├── dynamics.dart          DynamicsHttp  ← 动态列表/发布/删除
+├── user.dart              UserHttp      ← 用户信息
+├── member.dart            MemberHttp    ← 用户空间
+├── fav.dart               FavHttp       ← 收藏夹管理
+├── pgc.dart               PgcHttp       ← 番剧信息/评分/时间线
+├── login.dart             LoginHttp     ← 二维码/短信/密码登录
+├── msg.dart               MsgHttp       ← 消息通知
+├── music.dart             MusicHttp     ← 音乐
+├── danmaku.dart           DanmakuHttp   ← 弹幕发送/举报/过滤
+├── follow.dart            FollowHttp    ← 关注分组
+├── fan.dart               FanHttp       ← 粉丝
+├── download.dart          DownloadHttp  ← 下载
+├── sponsor_block*.dart    SponsorBlock  ← SponsorBlock (第三方)
+├── black.dart             BlackHttp     ← 黑名单
+├── match.dart             MatchHttp     ← 赛事
+├── danmaku_block.dart     DanmakuBlockHttp ← 弹幕屏蔽规则
+├── validate.dart          ValidateHttp  ← 验证
+│
+├── loading_state.dart     ← LoadingState 密封类 (Loading/Success/Error)
+├── retry_interceptor.dart ← Dio 重试拦截器
+├── browser_ua.dart        ← User-Agent 常量
+└── error_msg.dart         ← 错误消息
+```
 
-<br/>
+### 4.2 gRPC 层 (`lib/grpc/`) — 7 个已迁移服务
 
-## 下载
+同样为 `abstract final class` + `static` 方法。
 
-可以通过右侧release进行下载或拉取代码到本地进行编译
+```
+lib/grpc/
+├── grpc_req.dart  ← GrpcReq: 核心引擎
+│                    内部调用 Request().post<Uint8List>() + protobuf 编解码
+├── url.dart       ← GrpcUrl: gRPC 方法路径常量
+│
+├── view.dart      ViewGrpc    ← 视频详情 View 接口
+├── dm.dart        DmGrpc      ← 弹幕分段加载 DmSegMobile
+├── dyn.dart       DynGrpc     ← 动态红点 DynRed / OpusDetail
+├── reply.dart     ReplyGrpc   ← 评论列表 (仅查询: MainList/DetailList/DialogList)
+├── im.dart        ImGrpc      ← 私信/IM (最完整: 16 接口)
+├── audio.dart     AudioGrpc   ← 音频播放 URL / 三连 / 投币
+└── space.dart     SpaceGrpc   ← 空间动态流 / 搜索存档
+```
 
-<br/>
+### 4.3 gRPC 调用链验证（CodeGraph 追踪）
 
-## 声明
+```
+ViewGrpc.view(bvid)                    [lib/grpc/view.dart:8]
+  └─ GrpcReq.request(url, proto, parser)  [lib/grpc/grpc_req.dart:55]
+       ├─ Request().post<Uint8List>()     [lib/http/init.dart:36]
+       │    └─ Dio 单例 (同一连接池/拦截器)
+       ├─ compressProtobuf()              [lib/grpc/grpc_req.dart:22]
+       │    └─ 5字节帧头 + 条件 gzip
+       └─ _parse() / decompressProtobuf() [lib/grpc/grpc_req.dart:45/33]
+```
 
-此项目（PiliPlus）是个人为了兴趣而开发，仅用于学习和测试，请于下载后24小时内删除。
-所用API皆从官方网站收集，不提供任何破解内容。
-在此致敬原作者：[guozhigq/pilipala](https://github.com/guozhigq/pilipala)
-在此致敬上游作者：[orz12/PiliPalaX](https://github.com/orz12/PiliPalaX)
-本仓库做了更激进的修改，感谢原作者的开源精神。
+**重要发现**: `GrpcReq` **不是**标准 gRPC 实现，而是**基于 Dio 的自定义 Protobuf-over-HTTP**。它复用 REST 层的同一个 Dio 实例、Cookie Jar、账号拦截器和重试逻辑，仅通过 `content-type: application/grpc` 和 `responseType: ResponseType.bytes` 区分。
 
-感谢使用
+### 4.4 gRPC 迁移状态
 
+| 领域 | 查询 (Query) | 写入 (Mutation) | 状态 |
+|------|-------------|----------------|------|
+| **视频详情** | REST (`VideoHttp.videoIntro`) | REST | ❌ 未迁移 (`ViewGrpc` 已实现但被注释) |
+| **评论** | ✅ gRPC (`ReplyGrpc`) | ❌ REST (`ReplyHttp`) | ⏳ 半迁移 |
+| **弹幕** | ✅ gRPC (`DmGrpc`) | ❌ REST (`DanmakuHttp`) | ⏳ 半迁移 |
+| **动态/Opus** | ✅ gRPC (`DynGrpc` / `SpaceGrpc`) | ❌ REST (`DynamicsHttp`) | ⏳ 半迁移 |
+| **私信/IM** | ✅ gRPC (`ImGrpc`) | ✅ gRPC | ✅ 最完整 |
+| **音频** | ✅ gRPC (`AudioGrpc`) | ✅ gRPC | ✅ 已迁移 |
+| **直播** | ❌ REST | ❌ REST | ❌ 未迁移 |
+| **搜索** | ❌ REST | — | ❌ 未迁移 |
+| **番剧/PGC** | ❌ REST | ❌ REST | ❌ 未迁移 |
+| **用户/关注** | ❌ REST | ❌ REST | ❌ 未迁移 |
+| **收藏** | ❌ REST | ❌ REST | ❌ 未迁移 |
+| **登录** | ❌ REST | ❌ REST | ❌ 未迁移 |
+| **SponsorBlock** | ❌ REST | ❌ REST | ❌ 未迁移 |
 
-<br/>
+> 📌 注意 `ViewGrpc.view()` 虽已实现（`lib/grpc/view.dart:8`），但 `PgcIntroController` 中注释掉了对它的调用（`lib/pages/video/introduction/pgc/controller.dart:457`），视频元数据仍走 REST。
+
+### 4.5 `Request` (Dio) 调用者矩阵
+
+CodeGraph 追踪到 `Request()` 单例被 **270+ 处**调用，覆盖全部 HTTP/gRPC 流量。关键调用者：
+
+| 调用者 | 位置 |
+|--------|------|
+| `GrpcReq.request()` | `lib/grpc/grpc_req.dart:61` |
+| `VideoHttp.*` (12+ 方法) | `lib/http/video.dart` |
+| `LiveHttp.*` | `lib/http/live.dart` |
+| `SearchHttp.*` | `lib/http/search.dart` |
+| `DynamicsHttp.*` | `lib/http/dynamics.dart` |
+| `ReplyHttp.*` | `lib/http/reply.dart` |
+| `LoginHttp.*` | `lib/http/login.dart` |
+| `PgcHttp.*` | `lib/http/pgc.dart` |
+| `FavHttp.*` | `lib/http/fav.dart` |
+| `UserHttp.*` | `lib/http/user.dart` |
+| `MemberHttp.*` | `lib/http/member.dart` |
+| `MsgHttp.*` | `lib/http/msg.dart` |
+
+---
+
+## 五、页面模块地图
+
+> CodeGraph 搜索发现 ~50 个 Controller 类分布在 pages/*/controller.dart 中。
+> 每个页面模块遵循 **controller.dart + view.dart + widgets/** 三层模式。
+
+### 5.1 核心功能页
+
+#### 🎬 视频详情 (`lib/pages/video/`) — 最大模块 (~30 文件)
+
+```
+video/
+├── controller.dart  (52KB)       ← 主控制器: 播放/弹幕/互动
+├── view.dart        (79KB)       ← 播放器 UI 布局
+├── ai_conclusion/                ← AI 总结
+├── download_panel/               ← 下载面板
+├── introduction/
+│   ├── ugc/                      ← UGC 视频简介 (controller 24KB)
+│   │   └── widget/               ← action_item / menu_row / season / triple_mixin
+│   └── pgc/                      ← PGC/番剧简介 (controller 15KB)
+│       └── widget/               ← intro_detail / pgc_panel
+├── medialist/                    ← 媒体列表
+├── member/                       ← 成员信息
+├── note/                         ← 笔记
+├── pay_coins/                    ← 投币
+├── post_panel/                   ← 投稿面板
+├── related/                      ← 相关推荐
+├── reply/                        ← 评论
+├── reply_new/                    ← 新版评论
+├── reply_reply/                  ← 评论回复
+├── reply_search_item/            ← 评论搜索项
+├── send_danmaku/                 ← 发送弹幕
+├── view_point/                   ← 高能看点
+└── widgets/                      ← 头部控制 / 播放器焦点
+    ├── header_control.dart  (79KB)
+    ├── header_mixin.dart    (21KB)
+    └── player_focus.dart
+```
+
+**视频详情页调用链**（CodeGraph 验证）：
+
+```
+VideoDetailPageV                  [lib/pages/video/view.dart:74]
+  └─ VideoDetailController        [lib/pages/video/controller.dart]
+       ├─ PlPlayerController.getInstance()
+       │    └─ VideoHttp.videoUrl()     ← 播放地址 (REST)
+       │    └─ VideoHttp.playInfo()     ← HDR/音频 (REST)
+       │    └─ VideoHttp.vttSubtitles() ← 字幕 (REST)
+       │    └─ VideoHttp.tvPlayUrl()    ← TV 端 (REST)
+       ├─ UgcIntroController
+       │    └─ VideoHttp.videoIntro()   ← 视频元数据 (REST)
+       │    └─ VideoHttp.ugcTriple()    ← 三连 (REST)
+       │    └─ VideoHttp.likeVideo()    ← 点赞 (REST)
+       ├─ PgcIntroController
+       │    └─ VideoHttp.pgcLikeCoinFav() ← 番剧 (REST)
+       │    └─ ViewGrpc.view()          ← 已注释, 未启用
+       └─ VideoReplyController
+            └─ ReplyGrpc.mainList()     ← 评论列表 (gRPC)
+            └─ ReplyHttp.likeReply()    ← 评论操作 (REST)
+```
+
+#### 📺 直播 (`lib/pages/live_room/`)
+
+```
+LiveRoomController                [lib/pages/live_room/controller.dart]
+  ├─ LiveHttp.liveRoomInfo()      ← 直播间信息 (REST)
+  ├─ LiveHttp.liveRoomInfoH5()    ← H5 信息 (REST)
+  ├─ VideoHttp.roomEntryAction()  ← 入房上报 (REST)
+  └─ PlPlayerController.getInstance().setDataSource()  ← 播放
+```
+
+#### 🔍 搜索体系 (5 个独立页面)
+
+```
+搜索入口:     /search        → SearchPage
+搜索面板:     /searchPanel   → SearchPanelPage (含 video/article/live/pgc/user 子面板)
+搜索结果:     /searchResult  → SearchResultPage
+热搜:         /searchTrending → SearchTrendingPage
+搜索复用:     /favSearch / historySearch / laterSearch / followSearch / memberSearch
+```
+
+### 5.2 完整路由表
+
+| 路由 | 页面 | 功能 |
+|------|------|------|
+| `/` | MainApp | 主壳（底部导航壳） |
+| `/home` | HomePage | 首页推荐流 |
+| `/hot` | HotPage | 热门视频 |
+| `/videoV` | VideoDetailPageV | 🎬 **视频详情/播放** |
+| `/liveRoom` | LiveRoomPage | 📺 **直播间** |
+| `/webview` | WebviewPage | WebView |
+| `/search` | SearchPage | 搜索 |
+| `/searchResult` | SearchResultPage | 搜索结果 |
+| `/searchTrending` | SearchTrendingPage | 热搜 |
+| `/dynamics` | DynamicsPage | 动态流 |
+| `/dynamicDetail` | DynamicDetailPage | 动态详情 |
+| `/dynTopic` | DynTopicPage | 话题详情 |
+| `/follow` | FollowPage | 关注列表 |
+| `/fan` | FansPage | 粉丝列表 |
+| `/member` | MemberPage | 用户空间 |
+| `/memberSearch` | MemberSearchPage | 用户搜索 |
+| `/memberDynamics` | MemberDynamicsPage | 用户动态 |
+| `/memberGuard` | MemberGuardPage | 用户舰队 |
+| `/upowerRank` | UpowerRankPage | 创作力排名 |
+| `/fav` | FavPage | 收藏夹 |
+| `/favDetail` | FavDetailPage | 收藏夹详情 |
+| `/history` | HistoryPage | 历史记录 |
+| `/later` | LaterPage | 稍后再看 |
+| `/whisper` | WhisperPage | 私信列表 |
+| `/whisperDetail` | WhisperDetailPage | 私信详情 |
+| `/whisperSettings` | WhisperSettingsPage | 私信设置 |
+| `/whisperBlock` | WhisperBlockPage | 私信屏蔽 |
+| `/whisperSecondary` | WhisperSecondaryPage | 二级私信 |
+| `/replyMe` | ReplyMePage | 回复我的 |
+| `/atMe` | AtMePage | @我的 |
+| `/likeMe` | LikeMePage | 收到的赞 |
+| `/sysMsg` | SysMsgPage | 系统消息 |
+| `/setting` | SettingPage | 设置主页 |
+| `/recommendSetting` | RecommendSetting | 推荐流设置 |
+| `/videoSetting` | VideoSetting | 音视频设置 |
+| `/playSetting` | PlaySetting | 播放器设置 |
+| `/styleSetting` | StyleSetting | 外观设置 |
+| `/privacySetting` | PrivacySetting | 隐私设置 |
+| `/extraSetting` | ExtraSetting | 其它设置 |
+| `/barSetting` | BarSetPage | 导航栏设置 |
+| `/displayModeSetting` | SetDisplayMode | 帧率设置 |
+| `/colorSetting` | ColorSelectPage | 主题色选择 |
+| `/fontSizeSetting` | FontSizeSelectPage | 字体大小 |
+| `/playSpeedSet` | PlaySpeedPage | 倍速设置 |
+| `/about` | AboutPage | 关于 |
+| `/loginPage` | LoginPage | 登录 |
+| `/subscription` | SubPage | 订阅 |
+| `/subDetail` | SubDetailPage | 订阅详情 |
+| `/danmakuBlock` | DanmakuBlockPage | 弹幕屏蔽 |
+| `/liveDmBlockPage` | LiveDmBlockPage | 直播弹幕屏蔽 |
+| `/sponsorBlock` | SponsorBlockPage | SponsorBlock |
+| `/articlePage` | ArticlePage | 专栏 |
+| `/articleList` | ArticleListPage | 专栏列表 |
+| `/musicDetail` | MusicDetailPage | 音乐详情 |
+| `/audio` | AudioPage | 音频播放 |
+| `/download` | DownloadPage | 下载管理 |
+| `/dlna` | DLNAPage | DLNA 投屏 |
+| `/webdavSetting` | WebDavSettingPage | WebDAV 设置 |
+| `/popularSeries` | PopularSeriesPage | 热门系列 |
+| `/popularPrecious` | PopularPreciousPage | 热门精选 |
+| `/matchInfo` | MatchInfoPage | 赛事信息 |
+| `/pgc` | PgcPage | 番剧 |
+| `/pgcIndex` | PgcIndexPage | 番剧索引 |
+| `/pgcReview` | PgcReviewPage | 番剧评分 |
+| `/rank` | RankPage | 排行榜 |
+| `/bubble` | BubblePage | 气泡 |
+| `/blackListPage` | BlackListPage | 黑名单 |
+| `/logs` | LogsPage | 日志 |
+| `/settingsSearch` | SettingsSearchPage | 设置搜索 |
+| `/editProfile` | EditProfilePage | 编辑资料 |
+| `/createFav` | CreateFavPage | 创建收藏夹 |
+| `/createVote` | CreateVotePage | 创建投票 |
+| `/spaceSetting` | SpaceSettingPage | 空间设置 |
+| `/myReply` | MyReply | 我的回复 |
+| `/mainReply` | MainReplyPage | 主回复 |
+| `/videoWeb` | MemberVideoWeb | 成员视频 (Web) |
+| `/ssWeb` | MemberSSWeb | 成员合集 (Web) |
+| `/followed` | FollowedPage | 已关注 |
+| `/sameFollowing` | FollowSamePage | 共同关注 |
+| `/live` | LivePage | 直播分区 |
+| `/liveAreaDetail` | LiveAreaDetailPage | 分区详情 |
+| `/liveFollow` | LiveFollowPage | 关注直播 |
+| `/liveSearch` | LiveSearchPage | 直播搜索 |
+
+---
+
+## 六、播放器架构
+
+### `lib/plugin/pl_player/` — 自研播放器封装
+
+```
+pl_player/
+├── controller.dart (55,098 bytes)    ← 核心控制器 (单例)
+│   ├── getInstance() / dispose()     ← 生命周期
+│   ├── setDataSource(DataSource)     ← 设置视频源
+│   ├── play() / pause() / seekTo()   ← 播放控制
+│   ├── setPlaybackSpeed()            ← 倍速
+│   ├── enterPip() / enterDesktopPip()← 画中画
+│   ├── setVolume() / setAlwaysOnTop()
+│   └── isBuffering / playerStatus    ← 响应式状态
+│
+├── view/view.dart (89,160 bytes)     ← 播放器 UI
+│   ├── 控制栏显示/隐藏
+│   ├── 手势处理 (亮度/音量/快进)
+│   ├── 弹幕层
+│   └── 全屏切换
+│
+├── models/
+│   ├── data_source.dart              ← sealed class DataSource
+│   │   ├── NetworkSource (videoUrl + audioUrl)
+│   │   └── FileSource (本地缓存)
+│   ├── play_status.dart              ← 播放状态枚举
+│   ├── play_repeat.dart              ← 循环模式
+│   ├── fullscreen_mode.dart          ← 全屏模式
+│   ├── video_fit_type.dart           ← 画面适配
+│   ├── gesture_type.dart             ← 手势类型
+│   ├── hwdec_type.dart               ← 硬解类型
+│   ├── duration.dart                 ← 播放时长
+│   ├── data_status.dart              ← 数据状态
+│   ├── double_tap_type.dart          ← 双击行为
+│   ├── heart_beat_type.dart          ← 心跳类型
+│   ├── bottom_control_type.dart      ← 底部控制类型
+│   ├── bottom_progress_behavior.dart ← 进度条行为
+│   ├── audio_output_type.dart        ← 音频输出
+│   └── play_speed.dart               ← 倍速预设
+│
+├── utils/
+│   ├── fullscreen.dart               ← 全屏工具函数
+│   └── danmaku_options.dart          ← 弹幕渲染配置
+│
+└── widgets/
+    ├── bottom_control.dart           ← 底部控制栏
+    ├── play_pause_btn.dart           ← 播放/暂停按钮
+    ├── forward_seek.dart             ← 快进按钮
+    ├── backward_seek.dart            ← 快退按钮
+    ├── app_bar_ani.dart              ← 顶栏动画
+    ├── common_btn.dart               ← 通用按钮
+    ├── mpv_convert_webp.dart         ← WebP 动图转换
+    └── ── (布局在 view.dart 中)
+```
+
+### `PlPlayerController` 调用者（CodeGraph 追踪）
+
+| 调用者 | 位置 | 用途 |
+|--------|------|------|
+| `VideoDetailController` | `lib/pages/video/controller.dart:122` | 主视频页 |
+| `LiveRoomController` | `lib/pages/live_room/controller.dart:176` | 直播播放 |
+| `AudioController` | `lib/pages/audio/controller.dart:124` | 音频页 |
+| `AudioHandler` | `lib/services/audio_handler.dart:89,142,...` | 后台音频 + PiP |
+| `ShutdownTimerService` | `lib/services/shutdown_timer_service.dart:70,86,109` | 空闲自动关机 |
+| `_VideoDetailPageVState` | `lib/pages/video/view.dart:87,138,...` | 暂停/恢复/PiP |
+| `DanmakuInputView` | `lib/pages/video/send_danmaku/view.dart:469` | 弹幕发送 |
+
+---
+
+## 七、数据模型层
+
+### 手写 JSON 模型 (`lib/models/`)
+
+| 目录 | 内容 |
+|------|------|
+| `common/` | ~60 枚举/常量：视频质量、音质、搜索类型、排序方式、主题色、弹幕屏蔽类型等 |
+| | 子目录: `dynamic/` `live/` `member/` `msg/` `reply/` `search/` `sponsor_block/` `theme/` `video/` |
+| `user/` | 用户信息 (`info.dart/.g.dart`)、统计 (`stat.dart/.g.dart`)、弹幕屏蔽规则 |
+| `member/` | 用户空间信息、标签 |
+| `search/` | 搜索结果、搜索建议 |
+| `dynamics/` | 动态结果、文章内容、投票 |
+| `home/` | 首页推荐 |
+| `video/` | 播放 URL |
+| `login/` | 登录模型 |
+
+### Proto 生成模型 (`lib/grpc/bilibili/`)
+
+protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pbjson.dart`)：
+
+| 命名空间 | 覆盖接口 |
+|----------|----------|
+| `bilibili.app.viewunite.v1` | 视频详情 View |
+| `bilibili.app.dynamic.v2` | 动态 |
+| `bilibili.app.interfaces.v1` | 收藏/历史接口 |
+| `bilibili.app.listener.v1` | 播放监听 |
+| `bilibili.app.playurl.v1` | 播放 URL |
+| `bilibili.app.card.v1` | 卡片 |
+| `bilibili.app.archive.v1` | 存档 |
+| `bilibili.app.show.v1` | 推荐展示 |
+| `bilibili.app.playeronline.v1` | 在线人数 |
+| `bilibili.community.service.dm.v1` | 弹幕 |
+| `bilibili.main.community.reply.v1` | 评论 |
+| `bilibili.im.interfaces` | 私信 |
+| `bilibili.im.type` | 私信类型 |
+| `bilibili.account.service` | 账号 |
+| `bilibili.metadata` | 元数据 (device/network/locale) |
+
+---
+
+## 八、服务层
+
+`lib/services/` — 长期运行的后台服务：
+
+| 服务 | 文件 | 说明 |
+|------|------|------|
+| `AccountService` | `account_service.dart` (995B) | 账号状态变化监听 |
+| `AudioHandler` | `audio_handler.dart` (9.8KB) | 后台音频 (AudioService)，含 PiP 控制 |
+| `AudioSessionHandler` | `audio_session.dart` (2.6KB) | 音频会话：打断恢复、耳机拔出暂停 |
+| `DownloadManager` | `download/download_manager.dart` (3KB) | 下载队列管理 |
+| `DownloadService` | `download/download_service.dart` (18KB) | 下载业务逻辑 |
+| `ShutdownTimerService` | `shutdown_timer_service.dart` (9.5KB) | 定时关机 |
+| `Logger` | `logger.dart` (1.5KB) | 日志工具 |
+| `ServiceLocator` | `service_locator.dart` (390B) | GetX 服务注册 |
+
+---
+
+## 九、Utils 工具层
+
+`lib/utils/` — 30+ 工具文件：
+
+| 类别 | 文件 | 说明 |
+|------|------|------|
+| **账号** | `accounts/account.dart` | 账号管理、多账号切换 |
+| | `accounts/account_manager/` | 多账号管理器 (9KB) |
+| | `accounts/grpc_headers.dart` | gRPC 请求头封装 |
+| | `accounts/api_type.dart` | API 类型路由 |
+| | `accounts/cookie_jar_adapter.dart` | Cookie 持久化 |
+| **存储** | `storage.dart` | Hive CE 初始化 |
+| | `storage_pref.dart` (36KB) | 设置项类型安全封装 |
+| | `storage_key.dart` (10KB) | 所有 SettingBoxKey 常量 |
+| | `cache_manager.dart` | 缓存清理 |
+| **网络** | `request_utils.dart` (21KB) | 请求参数构建 |
+| | `wbi_sign.dart` | WBI 签名算法 |
+| | `url_utils.dart` | URL 解析 |
+| **UI** | `page_utils.dart` (23KB) | 页面跳转/动画 |
+| | `theme_utils.dart` (7.5KB) | 主题切换 |
+| | `color_utils.dart` | 颜色工具 |
+| | `grid.dart` (9KB) | 网格布局算法 |
+| | `waterfall.dart` (4KB) | 瀑布流布局 |
+| **扩展** | `extension/context_ext.dart` | BuildContext 扩展 |
+| | `extension/theme_ext.dart` | Theme 扩展 |
+| | `extension/num_ext.dart` | 数字格式化 |
+| | `extension/iterable_ext.dart` | 集合操作 |
+| | `extension/string_ext.dart` | 字符串工具 |
+| | `extension/get_ext.dart` | GetX 扩展 (putOrFind) |
+| **平台** | `platform_utils.dart` | 平台判断 |
+| | `device_utils.dart` | 设备信息 |
+| | `android/android_helper.dart` | Android 原生桥接 |
+| | `permission_handler.dart` (7.4KB) | 权限请求 |
+| **媒体** | `video_utils.dart` | 视频 URL 解析 |
+| | `image_utils.dart` (10KB) | 图片处理 |
+| | `danmaku_utils.dart` | 弹幕解析 |
+| **其它** | `date_utils.dart` | 日期格式化 |
+| | `num_utils.dart` | 数字格式化 (万/亿) |
+| | `share_utils.dart` | 分享 |
+| | `feed_back.dart` | 触觉反馈 |
+| | `update.dart` (5.5KB) | 更新检查 |
+| | `app_scheme.dart` (30KB) | 外部 Scheme 处理 |
+
+---
+
+## 十、关键架构决策
+
+| # | 决策 | 实现 | 证据 |
+|---|------|------|------|
+| 1 | **状态管理: GetX** | 全项目使用 `GetxController` + `Obx`/`Rx` + `GetMaterialApp` + `GetPage` | `lib/main.dart:264`, `lib/pages/*/controller.dart` |
+| 2 | **数据状态: 密封类** | `LoadingState<T>` 三态: `Loading` / `Success<T>` / `Error` | `lib/http/loading_state.dart:4-77` |
+| 3 | **服务类: 抽象最终类** | REST 和 gRPC 服务均为 `abstract final class` + `static` 方法 | `lib/http/video.dart:47`, `lib/grpc/view.dart:7` |
+| 4 | **Dio 双通道** | REST 和 gRPC 共享同一 Dio 单例，gRPC 仅改 content-type | `GrpcReq` 内部调用 `Request().post()` (`lib/grpc/grpc_req.dart:61`) |
+| 5 | **Protobuf 模型** | gRPC 用 protoc 生成模型；非 gRPC 用手写 JSON 类 | `lib/grpc/bilibili/*.pb.dart`, `lib/models/*.dart` |
+| 6 | **播放器: media_kit** | 基于 libmpv 的 media_kit，单例封装 (`PlPlayerController`) | `pubspec.yaml`, `lib/plugin/pl_player/controller.dart:71` |
+| 7 | **持久化: Hive CE** | 本地存储通过 `GStorage` (Hive 封装) | `lib/utils/storage.dart` |
+| 8 | **多账号** | `AccountManager` 管理多账号，通过 Dio 拦截器切换 | `lib/utils/accounts/account_manager/`, `lib/http/init.dart:40` |
+| 9 | **HTTP/2 可选** | Dio 可配 `Http2Adapter`，网络切换时重建连接 | `lib/http/init.dart:160-196` |
+| 10 | **Shaders 超分** | 集成 Anime4K GLSL 着色器实时提升动画画质 | `assets/shaders/Anime4K_*` |
+| 11 | **Flutter 补丁** | 通过 `.patch` 文件修改 Flutter SDK 源码修复 bug | `lib/scripts/*.patch` |
+
+---
+
+## 十一、Flutter 源码覆写
+
+`lib/scripts/` 目录下的补丁文件用于修复 Flutter SDK 组件在 PiliPlus 场景下的问题：
+
+| 补丁 | 覆写组件 | 文件大小 |
+|------|----------|----------|
+| `bottom_sheet_android.patch` | BottomSheet（Android 适配） | 689B |
+| `bottom_sheet_ios_piliplus.patch` | BottomSheet（iOS 适配） | 1.1KB |
+| `bottom_sheet_ios_flutter.patch` | BottomSheet（Flutter 官方修复） | 6.6KB |
+| `geetest_ios.patch` | 极验验证（iOS） | 6.4KB |
+| `image_anim.patch` | 图片动画 | 642B |
+| `layout_builder.patch` | LayoutBuilder | 3.2KB |
+| `modal_barrier.patch` | 模态屏障 | 7.2KB |
+| `mouse_cursor.patch` | 鼠标光标 | 654B |
+| `navigation_drawer.patch` | 导航抽屉 | 671B |
+| `navigator.patch` | 导航器 | 645B |
+| `scroll_view.patch` | 滚动视图 | 2.7KB |
+| `text_selection.patch` | 文本选择 | 5.8KB |
+
+---
 
 ## 致谢
 
+- 原作者: [guozhigq/pilipala](https://github.com/guozhigq/pilipala)
+- 上游: [orz12/PiliPalaX](https://github.com/orz12/PiliPalaX)
 - [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect)
-- [flutter_meedu_videoplayer](https://github.com/zezo357/flutter_meedu_videoplayer)
 - [media-kit](https://github.com/media-kit/media-kit)
 - [dio](https://pub.dev/packages/dio)
-- 等等
+- [GetX](https://pub.dev/packages/get)
+- [flutter_meedu_videoplayer](https://github.com/zezo357/flutter_meedu_videoplayer)
 
-<br/>
-<br/>
-<br/>
+---
 
-## Star History
-
-<a href="https://www.star-history.com/#bggRGjQaUbCoE/PiliPlus&Date">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=bggRGjQaUbCoE/PiliPlus&type=Date&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=bggRGjQaUbCoE/PiliPlus&type=Date" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=bggRGjQaUbCoE/PiliPlus&type=Date" />
- </picture>
-</a>
+<sup>📐 本架构地图由 CodeGraph 符号分析 + explore 子代理生成 | 文件:line 引用均为静态分析验证</sup>

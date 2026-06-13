@@ -1,0 +1,89 @@
+# Reasonix configuration.
+# Resolution order: flag > ./reasonix.toml > ~/AppData/Roaming/reasonix/config.toml > built-in defaults.
+# Secrets come from the environment via api_key_env; never put keys here.
+
+config_version = 2   # schema marker for diagnostics; old versions may ignore it
+default_model = "deepseek-flash"
+language      = "zh-CN"   # ui/model language; empty = auto-detect from $LANG / $REASONIX_LANG
+
+[agent]
+# system_prompt = """..."""   # omit to use the built-in prompt for this version
+# system_prompt_file = "prompts/system.md"   # overrides system_prompt when set
+max_steps         = 24   # executor tool-call rounds; 0 = no limit
+planner_max_steps = 8   # planner read-only tool-call rounds; 0 = no limit
+temperature       = 0.0
+auto_plan   = "off"   # off|on; off keeps plan mode manual
+reasoning_language = "zh"   # visible reasoning language: auto|zh|en
+# auto_plan_classifier = "deepseek-flash"   # optional; only used for borderline tasks
+soft_compact_ratio  = 0.5   # notice only; keeps cache-first prefix intact
+compact_ratio       = 0.8   # try compacting when prompt reaches this fraction
+compact_force_ratio = 0.9   # force compacting at this high-water mark
+cold_resume_prune   = true   # elide stale tool results when reopening a session past the provider cache window
+# planner_model = "mimo"   # optional: enable two-model collaboration
+subagent_model = "deepseek-flash"   # default model for runAs=subagent skills
+# subagent_models = { review = "deepseek-pro", security_review = "deepseek-pro" }   # per-skill overrides
+# subagent_effort = "high"   # optional default effort for subagents
+# subagent_efforts = { review = "max", task = "high" }   # per-tool/skill effort overrides
+output_style = "concise"   # persona/tone folded into the prompt
+
+[tools]
+enabled = ["read_file", "write_file", "edit_file", "multi_edit", "glob", "grep", "ls", "bash", "bash_output", "wait", "kill_shell", "todo_write", "web_fetch"]
+bash_timeout_seconds = 300   # foreground safety cap; set 0 for no tool-local cap
+
+[codegraph]
+enabled      = true   # built-in MCP server; off by default for first-run sessions
+auto_install = true   # fetch the runtime when CodeGraph is enabled but missing
+# path       = ""   # empty = cache, then PATH, then a bundle beside reasonix
+
+[builtin_mcp]
+time_enabled = false   # built-in Time MCP; off until manually enabled
+context7_enabled = false   # built-in Context7 MCP; off until manually enabled
+
+[lsp]
+enabled = true   # language server tools; servers launch lazily when used
+
+[lsp.servers.dart]
+command = "C:\\tools\\flutter\\bin\\cache\\dart-sdk\\bin\\dart.exe"
+args = ["language-server", "--protocol=lsp"]
+extensions = [".dart"]
+
+[skills]
+# paths = ["~/my-skills", "../shared/skills"]   # extra custom skill roots
+excluded_paths = ["~/.reasonix/skills", "~/.agents/skills"]   # skill roots hidden from discovery
+# max_depth = 3   # nested scan depth; set 1 for legacy root-only discovery
+# disabled_skills = ["review"]   # hide noisy or unwanted skills
+
+[permissions]
+# Per-call gating. mode = writer fallback when no rule matches: ask|allow|deny.
+# Readers always default to allow. Precedence: deny > ask > allow > fallback.
+# Rules are "Tool" or "Tool(specifier)"; e.g. Bash(go test:*), Edit(src/**).
+mode  = "allow"
+deny = ["Bash(git push*)", "Bash(git commit*)", "Bash(git reset*)", "Bash(git checkout*)", "Bash(git clean*)", "Bash(Remove-Item*)", "Bash(rm *)", "Bash(del *)", "Bash(npm publish*)", "Bash(flutter pub publish*)", "Bash(gradle publish*)"]
+allow = ["Bash(powershell -Command \"Get-ItemProperty 'HKCU:SOFTWARE\\Microsoft\\GameBar' 2>$null | Format-List\")", "Bash(powershell -NoProfile -Command \"\nGet-ItemProperty 'HKCU:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR' -ErrorAction SilentlyContinue | Format-List\n\")", "Bash(powershell -NoProfile -Command \"\nGet-ItemProperty 'HKLM:SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR' -ErrorAction SilentlyContinue | Format-List\n\")", "Bash(powershell -NoProfile -Command \"\nGet-ItemProperty 'HKCU:SOFTWARE\\Microsoft\\GameBar' -ErrorAction SilentlyContinue | Format-List\n\")", "Bash(powershell -NoProfile -Command \"\nGet-ItemProperty 'HKLM:SYSTEM\\CurrentControlSet\\Control\\GraphicsDrivers' -ErrorAction SilentlyContinue | Format-List\n\")", "Bash(powershell -NoProfile -Command \"\n# Search for latency-related registry keys\n$paths = @(\n    'HKCU:\\SOFTWARE\\Microsoft\\DirectX\\GraphicsSettings',\n    'HKCU:\\SOFTWARE\\Microsoft\\Direct3D\\GraphicsSettings',\n    'HKCU:\\System\\GameConfigStore',\n    'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm',\n    'HKCU:\\SOFTWARE\\Microsoft\\Windows\\Dwm',\n    'HKLM:\\SOFTWARE\\Microsoft\\DirectX\\GraphicsSettings',\n    'HKLM:\\SOFTWARE\\Microsoft\\Direct3D\\GraphicsSettings'\n)\nforeach ($p in $paths) {\n    if (Test-Path $p) {\n        Write-Host \\\"=== $p ===\\\"\n        Get-ItemProperty $p -ErrorAction SilentlyContinue | Format-List\n        Write-Host '---'\n    }\n}\n\")", "Bash(powershell -NoProfile -Command \"\n# Search for low latency / optimizations in registry\nGet-ChildItem 'HKCU:\\SOFTWARE\\Microsoft\\DirectX' -ErrorAction SilentlyContinue | ForEach-Object {\n    Write-Host \\\"=== \\$(\\$_.PSPath) ===\\\"\n    Get-ItemProperty \\$_.PSPath -ErrorAction SilentlyContinue | Format-List\n}\n\" 2>&1 | head -100)", "Bash(powershell -NoProfile:*)", "Bash(powershell -NoProfile -Command \"Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\Dwm' -ErrorAction SilentlyContinue | Format-List\")", "Bash(powershell -NoProfile -Command \"Get-ChildItem 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GameDVR' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host '---'; Write-Host $_.PSPath; Get-ItemProperty $_.PSPath }\")", "Bash(powershell -NoProfile -Command \"Get-ChildItem 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Settings' -ErrorAction SilentlyContinue -Recurse | Where-Object { $_.Name -match 'gaming|latency|延迟|game' } | ForEach-Object { Write-Host $_.PSPath }\" 2>&1)", "Bash(powershell -NoProfile -Command \"Get-ChildItem 'HKCU:\\Software\\Microsoft\\GameBar' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host \\$_.PSPath; Get-ItemProperty \\$_.PSPath | Format-List }\")", "Bash(powershell -NoProfile -Command \"Get-ChildItem 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\GameDVR' -ErrorAction SilentlyContinue | ForEach-Object { Write-Host \\$_.PSPath; Get-ItemProperty \\$_.PSPath | Format-List }\")", "Bash(powershell -NoProfile -Command \"Get-ChildItem 'HKLM:\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion' -ErrorAction SilentlyContinue | Where-Object { \\$_.PSChildName -match 'Game|Display|Gaming' } | ForEach-Object { Write-Host \\$_.PSPath }\")", "Bash(powershell -NoProfile -Command \"Get-ChildItem 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion' -ErrorAction SilentlyContinue | Where-Object { \\$_.PSChildName -match 'Game|Display|Gaming' } | ForEach-Object { Write-Host \\$_.PSPath }\")", "Bash(powershell -NoProfile -Command \"Get-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GamingConfiguration' -ErrorAction SilentlyContinue | Format-List\")", "Bash(powershell -NoProfile -Command \"Get-ItemProperty 'HKCU:\\Software\\Microsoft\\DirectX' -ErrorAction SilentlyContinue | Format-List\")", "Bash(reg query HKCU\\Software\\Microsoft\\DirectX /s 2>nul)", "Bash(reg query HKCU\\System\\GameConfigStore /s 2>nul)", "Bash(cmd /c \"reg query HKCU\\Software\\Microsoft\\DirectX /s 2>nul\")", "Bash(cmd /c \"reg query HKCU\\System\\GameConfigStore /s 2>nul\")", "Bash(cmd /c \"reg query HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\GamingConfiguration /s 2>nul\")", "Bash(cmd /c \"reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\GameDVR /s 2>nul\")", "Bash(powershell -NoProfile -Command \"Get-ChildItem 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\GameDVR' -ErrorAction SilentlyContinue -Recurse | ForEach-Object { Write-Host ('Path: ' + $_.PSPath); Get-ItemProperty $_.PSPath | Format-List }\")", "Edit"]
+# ask = ["Edit(src/**)"]   # force a prompt even if otherwise allowed
+
+[sandbox]
+# Confine tool blast radius. File-writers (write_file/edit_file/multi_edit)
+# may only write under workspace_root (empty = current dir) + allow_write.
+# bash = "enforce" (default) jails each command in an OS sandbox (macOS now;
+# graceful fallback elsewhere); "off" disables it. network allows egress.
+workspace_root = "."
+# allow_write = ["/tmp"]          # extra dirs writers may also modify
+bash    = "enforce"
+network = true
+
+[statusline]
+# A custom status line: a command whose first stdout line replaces the built-in
+# data row. It receives {"model","contextUsed","contextWindow","cwd"} as JSON on stdin.
+# command = "my-statusline.sh"
+
+# External MCP servers. type: "stdio" (default, a subprocess) | "http" | "sse".
+# ${VAR} / ${VAR:-default} are expanded from the environment in command/args/env/url/headers.
+# [[plugins]]
+# name    = "example"
+# command = "reasonix-plugin-example"
+# [[plugins]]                                  # a remote server over Streamable HTTP
+# name    = "stripe"
+# type    = "http"
+# url     = "https://mcp.stripe.com"
+# headers = { Authorization = "Bearer ${STRIPE_KEY}" }
