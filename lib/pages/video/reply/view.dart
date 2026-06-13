@@ -201,6 +201,7 @@ class _VideoReplyPanelState extends State<VideoReplyPanel>
                       ),
                     );
                   } else {
+                    _videoReplyController.ensureReplyPreview(response[index]);
                     return ReplyItemGrpc(
                       replyItem: response[index],
                       replyLevel: widget.replyLevel,

@@ -32,10 +32,14 @@
 
 # Codex 与 Reasonix 协作
 
+- 本节中的 Reasonix 专指外部 `reasonix.exe` CLI，不是 Codex 内置子智能体。调用时必须通过 Shell 执行 `reasonix run --dir "C:\Users\VG622\Documents\PiliPlus_Mod" "<任务>"`。
+- 未出现成功的 `reasonix run` 命令及其 stdout，就不算使用了 Reasonix；禁止用 Codex 的 subagent、multi-agent、spawn 或线程工具冒充或替代。
+- Reasonix CLI 不可用或执行失败时，由 Codex 直接接手并报告原因，不得静默切换为 Codex 子智能体。
 - Codex 负责判断是否委派、定义验收条件、审查 Reasonix 的改动，并执行最终测试、修正和交付。
 - Reasonix 是中低风险任务的主执行者，可独立完成代码搜索、调用链分析、候选方案、机械性修改、局部功能实现和初步测试。
 - 优先整块委派“定位、修改、初测、报告”，不要把同一任务拆成多轮零碎问答。预计不能替代明显的 Codex 阅读或实现工作时，不调用 Reasonix。
 - Reasonix 的任务必须明确目标、允许修改范围、禁止事项、验收命令和输出格式；不得自行扩大范围。
+- Reasonix 任务明确禁止使用 `todo_write`。当前 `v1.7.0` 的该工具完成任务时依赖 `complete_step` 凭据；单独启用会造成任务无法收尾和额外模型消耗，因此已从 `reasonix.toml` 工具列表移除。
 - Reasonix 默认直接修改工作区并返回不超过 30 行的交付报告，至少包含修改文件、关键依据、已运行检查、失败项和剩余风险。
 - Codex 优先审查 diff 和证据，不重复完整探索 Reasonix 已处理的源码；只有证据不足、风险较高或测试失败时才重新深入读取。
 - 核心架构、安全敏感逻辑、签名与密钥、发布操作、破坏性文件操作和 Git 写操作不得交给 Reasonix。

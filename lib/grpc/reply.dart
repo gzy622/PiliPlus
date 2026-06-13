@@ -89,6 +89,7 @@ abstract final class ReplyGrpc {
     required int rpid,
     required Mode mode,
     required String? offset,
+    int? pageSize,
   }) async {
     final res = await GrpcReq.request(
       GrpcUrl.detailList,
@@ -99,7 +100,9 @@ abstract final class ReplyGrpc {
         rpid: Int64(rpid),
         scene: DetailListScene.REPLY,
         mode: mode,
-        pagination: offset == null ? null : FeedPagination(offset: offset),
+        pagination: offset == null && pageSize == null
+            ? null
+            : FeedPagination(offset: offset, pageSize: pageSize),
       ),
       DetailListReply.fromBuffer,
     );
