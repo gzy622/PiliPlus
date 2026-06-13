@@ -63,6 +63,26 @@ abstract final class Update {
                         style: const TextStyle(fontSize: 20),
                       ),
                       const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: colorScheme.tertiaryContainer.withValues(
+                            alpha: 0.4,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '⚠ 当前为自制修改版，升级官方版本将丢失本地定制功能。',
+                          style: TextStyle(
+                            color: colorScheme.onTertiaryContainer,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
                       Text('${data['body']}'),
                       TextButton(
                         onPressed: () => PageUtils.launchURL(

@@ -165,6 +165,15 @@ Commit Hash: ${BuildConfig.commitHash}''',
                 ? null
                 : () => Utils.copyText(BuildConfig.commitHash),
           ),
+          ListTile(
+            leading: Icon(
+              Icons.info_outline,
+              color: theme.colorScheme.tertiary,
+            ),
+            title: const Text('当前为自制修改版'),
+            subtitle: const Text('包含本地定制功能，升级官方版可能覆盖定制'),
+            dense: true,
+          ),
           Divider(
             thickness: 1,
             height: 30,
