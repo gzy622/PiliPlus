@@ -3,7 +3,9 @@
 <div align="center">
   <img width="100" src="assets/images/logo/logo.png">
   <p><strong>使用 Flutter 开发的 BiliBili 第三方客户端</strong></p>
-  <p>v2.0.9+1 · Flutter 3.44.2 · Dart >=3.12.0 · GetX · media_kit</p>
+  <p><strong>⚠️ 自制修改版 — 包含本地定制功能</strong></p>
+  <p>基于上游 v2.0.9 · Flutter 3.44.2 · Dart >=3.12.0 · GetX · media_kit</p>
+  <p>版本 = 上游版本号 + 构建时间戳（如 <code>2.0.9.20260620.135050</code>）</p>
 </div>
 
 ---
@@ -21,6 +23,7 @@
 - [Utils 工具层](#九utils-工具层)
 - [关键架构决策](#十关键架构决策)
 - [Flutter 源码覆写](#十一flutter-源码覆写)
+- [本地定制功能](#十二本地定制功能)
 - [致谢](#致谢)
 
 ---
@@ -29,7 +32,8 @@
 
 | 属性 | 内容 |
 |------|------|
-| 项目名 | PiliPlus |
+| 项目名 | PiliPlus（自制修改版） |
+| 上游 | [bggRGjQaUbCoE/PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus) |
 | 技术栈 | Flutter 3.44.2 / Dart >=3.12.0 |
 | 状态管理 | GetX (GetMaterialApp + GetxController + Obx/Rx) |
 | 播放引擎 | media_kit (libmpv) |
@@ -37,6 +41,7 @@
 | 持久化 | Hive CE (GetStorage 封装) |
 | 代码量 | ~108 页面文件、28 REST 服务、7 gRPC 服务 |
 | 平台 | ✅ Android · ✅ iOS · ✅ Pad · ✅ Windows · ✅ macOS · ✅ Linux |
+| 版本号规则 | `<上游版本.日期.时间>`（如 `2.0.9.20260620.135050`），每次构建唯一 |
 
 ---
 
@@ -456,14 +461,17 @@ LiveRoomController                [lib/pages/live_room/controller.dart]
 
 ```
 pl_player/
-├── controller.dart (55,098 bytes)    ← 核心控制器 (单例)
+├── controller.dart (55KB)           ← 核心控制器 (单例)
 │   ├── getInstance() / dispose()     ← 生命周期
 │   ├── setDataSource(DataSource)     ← 设置视频源
 │   ├── play() / pause() / seekTo()   ← 播放控制
 │   ├── setPlaybackSpeed()            ← 倍速
 │   ├── enterPip() / enterDesktopPip()← 画中画
 │   ├── setVolume() / setAlwaysOnTop()
-│   └── isBuffering / playerStatus    ← 响应式状态
+│   ├── isBuffering / playerStatus    ← 响应式状态
+│   ├── setAudioDelayIfExists(val)    ← [自制] 运行时设置 audio-delay
+│   ├── getPlayerDiagnostics()        ← [自制] 读取 14 项 mpv 属性用于诊断
+│   └── (BT 自动切换: 监听 devicesStream 即时应用/归零 audio-delay)
 │
 ├── view/view.dart (89,160 bytes)     ← 播放器 UI
 │   ├── 控制栏显示/隐藏
@@ -567,7 +575,7 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 |------|------|------|
 | `AccountService` | `account_service.dart` (995B) | 账号状态变化监听 |
 | `AudioHandler` | `audio_handler.dart` (9.8KB) | 后台音频 (AudioService)，含 PiP 控制 |
-| `AudioSessionHandler` | `audio_session.dart` (2.6KB) | 音频会话：打断恢复、耳机拔出暂停 |
+| `AudioSessionHandler` | `audio_session.dart` (3.5KB) | 音频会话：打断恢复、耳机拔出暂停、蓝牙 A2DP 自动检测与延迟补偿切换 |
 | `DownloadManager` | `download/download_manager.dart` (3KB) | 下载队列管理 |
 | `DownloadService` | `download/download_service.dart` (18KB) | 下载业务逻辑 |
 | `ShutdownTimerService` | `shutdown_timer_service.dart` (9.5KB) | 定时关机 |
@@ -660,6 +668,22 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 
 ---
 
+## 十二、本地定制功能
+
+本仓库在上游基础上增加的定制功能：
+
+| 功能 | 涉及文件 | 说明 |
+|------|----------|------|
+| **蓝牙 A2DP 延迟补偿** | `lib/services/audio_session.dart`<br>`lib/plugin/pl_player/controller.dart`<br>`lib/pages/setting/models/video_settings.dart` | 通过 `audio-delay`（mpv 参数）负值补偿蓝牙耳机音频延迟；支持运行时即时生效、保存确认 toast |
+| **蓝牙自动检测切换** | `lib/services/audio_session.dart`<br>`lib/plugin/pl_player/controller.dart`<br>`lib/pages/setting/models/video_settings.dart` | 利用 `audio_session` 包的 `devicesStream` 实时检测蓝牙 A2DP 耳机连接状态，连接时自动应用延迟补偿值，断开时归零 |
+| **播放器诊断** | `lib/pages/video/widgets/header_control.dart`<br>`lib/plugin/pl_player/controller.dart` | 播放信息弹窗中新增 `audio-delay`、`avsync`、`paused-on-cache`、`cache-secs`、`cache-buffering-state` 五项 mpv 运行时属性，支持点击复制，用于诊断音画同步和缓冲问题 |
+| **时间戳版本号** | `lib/build_config.dart`<br>`scripts/build_android_local.ps1` | 版本号 = 上游版本号 + 当前具体时间（`2.0.9.20260620.135050`），APK 命名同步，确保每次构建唯一且可追溯 |
+| **首页搜索框/我的搜索按钮隐藏** | 外观设置 | 支持隐藏首页搜索框和"我的"页搜索按钮，布局占位保留 |
+| **修改版标识** | `lib/pages/about/view.dart` | 关于页始终显示"当前为自制修改版"提示；检测到上游更新时提醒升级官方版会丢失本地定制功能 |
+| **signedDecimal 输入格式化器** | `lib/utils/filtering_text.dart` | 新增支持负号和小数的输入格式化器，用于音频延迟等需要负数输入的设置项 |
+
+---
+
 ## 致谢
 
 - 原作者: [guozhigq/pilipala](https://github.com/guozhigq/pilipala)
@@ -673,3 +697,4 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 ---
 
 <sup>📐 本架构地图由 CodeGraph 符号分析 + explore 子代理生成 | 文件:line 引用均为静态分析验证</sup>
+<sup>⚠️ 此仓库为 [bggRGjQaUbCoE/PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus) 的本地修改版，定制功能见[第十二章](#十二本地定制功能)。升级官方版会丢失本地定制功能。</sup>
