@@ -4,7 +4,7 @@
 
 .DESCRIPTION
     双击运行即可。完成以下操作：
-      1. 检测 Flutter SDK、Java 17、Android SDK
+      1. 检测 Flutter SDK、Java 21、Android SDK
       2. 计算版本号，生成构建配置文件
       3. 运行 flutter pub get
       4. 执行本机环境修复（TLS / 长路径 / 插件文件恢复）
@@ -80,10 +80,10 @@ if (-not $FlutterRoot) {
 if (-not $FlutterRoot) { Write-Err "找不到 Flutter SDK。先安装: fvm install 3.44.2 && fvm use" }
 Write-Ok "Flutter: $FlutterRoot"
 
-# ─── 2. 检测 Java 17 ──────────────────────────────────────────
-Write-Step "2/5  检测 Java 17..."
+# ─── 2. 检测 Java 21 ──────────────────────────────────────────
+Write-Step "2/5  检测 Java 21..."
 $javaHome = $env:JAVA_HOME
-if (-not $javaHome) { Write-Err "JAVA_HOME 未设置。请安装 JDK 17 并设置环境变量。" }
+if (-not $javaHome) { Write-Err "JAVA_HOME 未设置。请安装 JDK 21 并设置环境变量。" }
 $javaExe = jp $javaHome "bin" "java.exe"
 if (-not (Test-Path $javaExe)) { $javaExe = jp $javaHome "bin" "java" }
 if (-not (Test-Path $javaExe)) { Write-Err "在 JAVA_HOME 下找不到 java: $javaHome" }
@@ -91,7 +91,7 @@ $javaResult = Invoke-Native $javaExe @("-version")
 $verOut = $javaResult.Output | Out-String
 if ($javaResult.ExitCode -ne 0) { Write-Err "Java 无法正常运行（退出码 $($javaResult.ExitCode)）。" }
 if ($verOut -match '"(\d+)') { $majorVer = [int]$matches[1] } else { $majorVer = 0 }
-if ($majorVer -lt 17) { Write-Err "需要 Java 17+, 当前是 $majorVer。请安装 JDK 17。" }
+if ($majorVer -lt 21) { Write-Err "需要 Java 21+, 当前是 $majorVer。请安装 JDK 21。" }
 Write-Ok "Java $majorVer at $javaHome"
 
 # ─── 3. 检测 Android SDK ───────────────────────────────────────
