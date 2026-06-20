@@ -120,21 +120,27 @@ Write-Step "4/5  准备构建..."
 $pubspecPath = Join-Path $ProjectRoot "pubspec.yaml"
 $pubspecContent = Get-Content $pubspecPath -Encoding UTF8
 
-# 提取 versionName / versionCode
+# 提取 versionName
 $versionLine = $pubspecContent | Where-Object { $_ -match '^\s*version:\s*([\d\.]+)\+(\d+)' } | Select-Object -First 1
 if (-not $versionLine) { Write-Err "pubspec.yaml 中找不到 version 行" }
-$versionName = $matches[1]  # e.g. 2.0.9
-$versionCode = $matches[2]  # e.g. 1
+$upstreamVersion = $matches[1]  # e.g. 2.0.9
+
+# 完整版本 = 上游版本号 + 当前具体时间
+$timeStamp = Get-Date -Format 'yyyyMMdd.HHmmss'
+$versionName = "$upstreamVersion.$timeStamp"  # e.g. 2.0.9.20260620.141530
+
+# 版本号（Android versionCode）用构建日期 YYYYMMDD，确保线性递增
+$dateCode = [int](Get-Date -Format 'yyyyMMdd')
 
 # 生成 pili_release.json
 $buildTime = [int]([DateTimeOffset]::Now.ToUnixTimeSeconds())
 $commitHash = "local"
 try { $commitHash = (git rev-parse HEAD 2>$null).Trim().Substring(0,9) } catch {}
-$releaseData = @{ 'pili.name' = $versionName; 'pili.code' = [int]$versionCode; 'pili.hash' = $commitHash; 'pili.time' = $buildTime }
+$releaseData = @{ 'pili.name' = $versionName; 'pili.code' = $dateCode; 'pili.hash' = $commitHash; 'pili.time' = $buildTime }
 $releaseJsonPath = Join-Path $ProjectRoot "pili_release.json"
 $releaseData | ConvertTo-Json -Compress | Set-Content $releaseJsonPath -Encoding UTF8
 
-Write-Ok "Version: $versionName (build $versionCode)"
+Write-Ok "Version: $versionName"
 
 # ─── 6. Flutter pub get ────────────────────────────────────────
 $flutterExe = jp $FlutterRoot "bin" "flutter.bat"
@@ -201,16 +207,25 @@ $buildResult = Invoke-Native $flutterExe $buildArgs
 $buildResult.Output | ForEach-Object { Write-Host $_ }
 if ($buildResult.ExitCode -ne 0) { Write-Err "构建失败，详见上方日志" }
 
-# ─── 9. 查找产物 ──────────────────────────────────────────────
+# ─── 9. 查找产物并重命名 ──────────────────────────────────────
 $apkDir = jp $ProjectRoot "build" "app" "outputs" "flutter-apk"
 $suffix = if ($Dev) { "dev-release" } else { "release" }
-$apk = Get-ChildItem (Join-Path $apkDir "app-arm64-v8a-$suffix.apk") -ErrorAction SilentlyContinue
+$originalApk = Get-ChildItem (Join-Path $apkDir "app-arm64-v8a-$suffix.apk") -ErrorAction SilentlyContinue
 
-if (-not $apk) {
-    $apk = Get-ChildItem (Join-Path $apkDir "*.apk") -ErrorAction SilentlyContinue | Select-Object -First 1
+if (-not $originalApk) {
+    $originalApk = Get-ChildItem (Join-Path $apkDir "*.apk") -ErrorAction SilentlyContinue | Select-Object -First 1
 }
 
-if (-not $apk) { Write-Err "找不到构建产物 APK。" }
+if (-not $originalApk) { Write-Err "找不到构建产物 APK。" }
+
+# 重命名 APK 为 PiliPlus-完整版本-架构.apk
+$apkName = "PiliPlus-$versionName-arm64-v8a.apk"
+$apkPath = Join-Path $originalApk.Directory $apkName
+if ($originalApk.Name -ne $apkName) {
+    Rename-Item -LiteralPath $originalApk.FullName -NewName $apkName -ErrorAction SilentlyContinue
+}
+$apk = Get-ChildItem $apkPath -ErrorAction SilentlyContinue
+if (-not $apk) { $apk = $originalApk }
 
 # ─── 10. 输出摘要 ─────────────────────────────────────────────
 $Elapsed = (Get-Date) - $ScriptStart
@@ -222,11 +237,11 @@ Write-Host ""
 Write-Host "╔═══════════════════════════════════════════════╗"
 Write-Host "║          构建成功！                           ║"
 Write-Host "╠═══════════════════════════════════════════════╣"
-Write-Host "║ APK 路径:  $($apk.FullName)"
+Write-Host "║ APK:       $apkName"
+Write-Host "║ 路径:      $($apk.Directory)"
 Write-Host "║ 大小:      $([math]::Round($sizeMB,1)) MB"
 Write-Host "║ SHA256:    $sha256"
-Write-Host "║ 版本名称:  $versionName"
-Write-Host "║ 版本号:    $versionCode"
+Write-Host "║ 版本:      $versionName"
 Write-Host "║ 包名:      $appId"
 Write-Host "║ 用时:      $([math]::Round($Elapsed.TotalSeconds,0)) 秒"
 Write-Host "╚═══════════════════════════════════════════════╝"

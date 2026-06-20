@@ -13,4 +13,6 @@ abstract final class BuildConfig {
     'pili.hash',
     defaultValue: 'N/A',
   );
+
+  static String get displayVersion => versionName;
 }

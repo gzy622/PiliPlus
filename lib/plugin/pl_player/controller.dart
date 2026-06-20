@@ -30,6 +30,7 @@ import 'package:PiliPlus/plugin/pl_player/models/play_repeat.dart';
 import 'package:PiliPlus/plugin/pl_player/models/play_status.dart';
 import 'package:PiliPlus/plugin/pl_player/models/video_fit_type.dart';
 import 'package:PiliPlus/plugin/pl_player/utils/fullscreen.dart';
+import 'package:PiliPlus/services/audio_session.dart';
 import 'package:PiliPlus/services/service_locator.dart';
 import 'package:PiliPlus/utils/accounts.dart';
 import 'package:PiliPlus/utils/android/android_helper.dart';
@@ -468,6 +469,34 @@ class PlPlayerController with BlockConfigMixin {
     return _instance != null;
   }
 
+  static String? setAudioDelayIfExists(double value) {
+    final player = _instance?._videoPlayerController;
+    if (player == null) return null;
+    player.setProperty('audio-delay', value.toString());
+    return player.getProperty('audio-delay');
+  }
+
+  static String? getPlayerDiagnostics() {
+    final player = _instance?._videoPlayerController;
+    if (player == null) return null;
+    return [
+      'audio-delay: ${player.getProperty("audio-delay")}',
+      'video-sync: ${player.getProperty("video-sync")}',
+      'autosync: ${player.getProperty("autosync")}',
+      'ao: ${player.getProperty("ao")}',
+      'hwdec-current: ${player.getProperty("hwdec-current")}',
+      'avsync: ${player.getProperty("avsync")}',
+      'total-avsync-change: ${player.getProperty("total-avsync-change")}',
+      'audio-pts: ${player.getProperty("audio-pts")}',
+      'video-pts: ${player.getProperty("video-pts")}',
+      'pause: ${player.getProperty("pause")}',
+      'paused-on-cache: ${player.getProperty("paused-on-cache")}',
+      'cache-secs: ${player.getProperty("cache-secs")}',
+      'demuxer-cache-time: ${player.getProperty("demuxer-cache-time")}',
+      'cache-buffering-state: ${player.getProperty("cache-buffering-state")}',
+    ].join('\n');
+  }
+
   static void setPlayCallBack(PlayCallback? playCallBack) {
     _playCallBack = playCallBack;
   }
@@ -778,9 +807,16 @@ class PlPlayerController with BlockConfigMixin {
               .toString(),
       'volume-max': kMaxVolume.toString(),
     };
-    final autosync = Pref.autosync;
-    if (autosync != '0') {
-      opt['autosync'] = autosync;
+    final audioDelay = Pref.btAutoSwitch && !AudioSessionHandler.isBluetoothA2dpConnected
+        ? 0.0
+        : Pref.audioDelay;
+    if (audioDelay != 0.0) {
+      opt['audio-delay'] = audioDelay.toString();
+    } else {
+      final autosync = Pref.autosync;
+      if (autosync != '0') {
+        opt['autosync'] = autosync;
+      }
     }
 
     final player = await Player.create(
@@ -804,6 +840,16 @@ class PlPlayerController with BlockConfigMixin {
     player.setMediaHeader(userAgent: BrowserUa.pc, referer: HttpString.baseUrl);
 
     _startListeners(player);
+
+    if (kDebugMode) {
+      try {
+        debugPrint(
+          '[PlPlayer] init: audio-delay=${player.getProperty("audio-delay")} '
+          'video-sync=${player.getProperty("video-sync")} '
+          'autosync=${player.getProperty("autosync")}',
+        );
+      } catch (_) {}
+    }
 
     return player;
   }
@@ -891,6 +937,10 @@ class PlPlayerController with BlockConfigMixin {
       }
     }
 
+    if (kDebugMode) {
+      debugPrint('[PlPlayer] open start seekTo=$seekTo dash=${dataSource.audioSource != null}');
+    }
+    final openSw = Stopwatch()..start();
     await player.open(
       Media(
         video,
@@ -899,6 +949,15 @@ class PlPlayerController with BlockConfigMixin {
       ),
       play: false,
     );
+    if (kDebugMode) {
+      debugPrint('[PlPlayer] open done ${openSw.elapsedMilliseconds}ms');
+    }
+    final audioDelay = Pref.btAutoSwitch && !AudioSessionHandler.isBluetoothA2dpConnected
+        ? 0.0
+        : Pref.audioDelay;
+    if (audioDelay != 0.0) {
+      player.setProperty('audio-delay', audioDelay.toString());
+    }
   }
 
   Future<void>? refreshPlayer() {

@@ -855,6 +855,47 @@ class HeaderControlState extends State<HeaderControl>
                       subtitle: Text(hwdec),
                       onTap: () => Utils.copyText('hwdec\n$hwdec'),
                     ),
+                    const Divider(height: 1),
+                    ListTile(
+                      dense: true,
+                      title: const Text('audio-delay'),
+                      subtitle: Text(player.getProperty('audio-delay')),
+                      onTap: () => Utils.copyText(
+                        'audio-delay\n${player.getProperty('audio-delay')}',
+                      ),
+                    ),
+                    ListTile(
+                      dense: true,
+                      title: const Text('avsync'),
+                      subtitle: Text(player.getProperty('avsync')),
+                      onTap: () => Utils.copyText(
+                        'avsync\n${player.getProperty('avsync')}',
+                      ),
+                    ),
+                    ListTile(
+                      dense: true,
+                      title: const Text('paused-on-cache'),
+                      subtitle: Text(player.getProperty('paused-on-cache')),
+                      onTap: () => Utils.copyText(
+                        'paused-on-cache\n${player.getProperty('paused-on-cache')}',
+                      ),
+                    ),
+                    ListTile(
+                      dense: true,
+                      title: const Text('cache-secs'),
+                      subtitle: Text(player.getProperty('cache-secs')),
+                      onTap: () => Utils.copyText(
+                        'cache-secs\n${player.getProperty('cache-secs')}',
+                      ),
+                    ),
+                    ListTile(
+                      dense: true,
+                      title: const Text('cache-buffering-state'),
+                      subtitle: Text(player.getProperty('cache-buffering-state')),
+                      onTap: () => Utils.copyText(
+                        'cache-buffering-state\n${player.getProperty('cache-buffering-state')}',
+                      ),
+                    ),
                   ],
                 ),
               ),

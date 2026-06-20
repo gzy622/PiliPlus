@@ -4,4 +4,8 @@ abstract final class FilteringText {
   static final decimal = [
     FilteringTextInputFormatter.allow(RegExp(r'[\d\.]+')),
   ];
+
+  static final signedDecimal = [
+    FilteringTextInputFormatter.allow(RegExp(r'[-\d\.]+')),
+  ];
 }

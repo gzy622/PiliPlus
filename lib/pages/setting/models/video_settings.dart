@@ -8,6 +8,7 @@ import 'package:PiliPlus/models/common/video/video_quality.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
 import 'package:PiliPlus/pages/setting/widgets/ordered_multi_select_dialog.dart';
 import 'package:PiliPlus/pages/setting/widgets/select_dialog.dart';
+import 'package:PiliPlus/plugin/pl_player/controller.dart';
 import 'package:PiliPlus/plugin/pl_player/models/audio_output_type.dart';
 import 'package:PiliPlus/plugin/pl_player/models/hwdec_type.dart';
 import 'package:PiliPlus/utils/filtering_text.dart';
@@ -170,6 +171,26 @@ List<SettingsModel> get videoSettings => [
     leading: const Icon(Icons.view_timeline_outlined),
     getSubtitle: () => '当前：${Pref.videoSync}（此项即mpv的--video-sync）',
     onTap: _showVideoSyncDialog,
+  ),
+  NormalModel(
+    title: '音频延迟',
+    leading: const Icon(Icons.bluetooth_audio),
+    getSubtitle: () {
+      final bt = Pref.btAutoSwitch;
+      return '当前：${Pref.audioDelay}s。'
+          '负值提前音频（补偿蓝牙耳机延迟），非0时自动关闭自动同步。'
+          '此项即mpv的--audio-delay，保存后即时生效'
+          '${bt ? '（蓝牙自动切换已开启）' : ''}';
+    },
+    onTap: _showAudioDelayDialog,
+  ),
+  const SwitchModel(
+    title: '蓝牙自动切换',
+    subtitle: '连接蓝牙耳机时自动应用音频延迟补偿值，断开时自动归零。'
+        '需打开音频延迟并填入负值后生效',
+    leading: Icon(Icons.bluetooth_connected),
+    setKey: SettingBoxKey.btAutoSwitch,
+    defaultVal: false,
   ),
   NormalModel(
     title: '硬解模式',
@@ -492,6 +513,60 @@ void _showAutoSyncDialog(BuildContext context, VoidCallback setState) {
               Get.back();
               await GStorage.setting.put(SettingBoxKey.autosync, autosync);
               setState();
+            } catch (e) {
+              SmartDialog.showToast(e.toString());
+            }
+          },
+          child: const Text('确定'),
+        ),
+      ],
+    ),
+  );
+}
+
+void _showAudioDelayDialog(BuildContext context, VoidCallback setState) {
+  String value = Pref.audioDelay.toString();
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('音频延迟'),
+      content: TextFormField(
+        autofocus: true,
+        initialValue: value,
+        keyboardType:
+            const TextInputType.numberWithOptions(decimal: true, signed: true),
+        onChanged: (val) => value = val,
+        inputFormatters: FilteringText.signedDecimal,
+        decoration: const InputDecoration(
+          suffixText: 's',
+          helperText: '蓝牙耳机通常填 -0.2 到 -0.3',
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: Get.back,
+          child: Text(
+            '取消',
+            style: TextStyle(color: ColorScheme.of(context).outline),
+          ),
+        ),
+        TextButton(
+          onPressed: () async {
+            try {
+              final val = double.parse(value);
+              if (val < -5.0 || val > 5.0) {
+                SmartDialog.showToast('请输入 -5 到 5 之间的数值');
+                return;
+              }
+              Get.back();
+              await GStorage.setting.put(SettingBoxKey.audioDelay, val);
+              setState();
+              final applied = PlPlayerController.setAudioDelayIfExists(val);
+              if (applied != null) {
+                SmartDialog.showToast('已应用，mpv 实际值：${applied}s');
+              } else {
+                SmartDialog.showToast('已保存，下次播放时生效');
+              }
             } catch (e) {
               SmartDialog.showToast(e.toString());
             }
