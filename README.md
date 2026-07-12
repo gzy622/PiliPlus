@@ -4,8 +4,8 @@
   <img width="100" src="assets/images/logo/logo.png">
   <p><strong>使用 Flutter 开发的 BiliBili 第三方客户端</strong></p>
   <p><strong>⚠️ 自制修改版 — 包含本地定制功能</strong></p>
-  <p>基于上游 v2.0.9 · Flutter 3.44.2 · Dart >=3.12.0 · GetX · media_kit</p>
-  <p>版本 = 上游版本号 + 构建时间戳（如 <code>2.0.9.20260620.135050</code>）</p>
+  <p>基于上游 v2.1.0 · Flutter 3.44.6 · Dart >=3.12.0 · GetX · media_kit</p>
+  <p>版本 = 上游版本号 + 构建时间戳（如 <code>2.1.0.20260712.103800</code>）</p>
 </div>
 
 ---
@@ -34,14 +34,14 @@
 |------|------|
 | 项目名 | PiliPlus（自制修改版） |
 | 上游 | [bggRGjQaUbCoE/PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus) |
-| 技术栈 | Flutter 3.44.2 / Dart >=3.12.0 |
+| 技术栈 | Flutter 3.44.6 / Dart >=3.12.0 |
 | 状态管理 | GetX (GetMaterialApp + GetxController + Obx/Rx) |
 | 播放引擎 | media_kit (libmpv) |
 | 网络层 | Dio (REST) + 自研 Protobuf-over-HTTP (gRPC) |
 | 持久化 | Hive CE (GetStorage 封装) |
 | 代码量 | ~108 页面文件、28 REST 服务、7 gRPC 服务 |
 | 平台 | ✅ Android · ✅ iOS · ✅ Pad · ✅ Windows · ✅ macOS · ✅ Linux |
-| 版本号规则 | `<上游版本.日期.时间>`（如 `2.0.9.20260620.135050`），每次构建唯一 |
+| 版本号规则 | `<上游版本.日期.时间>`（如 `2.1.0.20260712.103800`），每次构建唯一 |
 
 ---
 
@@ -677,7 +677,7 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 | **蓝牙 A2DP 延迟补偿** | `lib/services/audio_session.dart`<br>`lib/plugin/pl_player/controller.dart`<br>`lib/pages/setting/models/video_settings.dart` | 通过 `audio-delay`（mpv 参数）负值补偿蓝牙耳机音频延迟；支持运行时即时生效、保存确认 toast |
 | **蓝牙自动检测切换** | `lib/services/audio_session.dart`<br>`lib/plugin/pl_player/controller.dart`<br>`lib/pages/setting/models/video_settings.dart` | 利用 `audio_session` 包的 `devicesStream` 实时检测蓝牙 A2DP 耳机连接状态，连接时自动应用延迟补偿值，断开时归零 |
 | **播放器诊断** | `lib/pages/video/widgets/header_control.dart`<br>`lib/plugin/pl_player/controller.dart` | 播放信息弹窗中新增 `audio-delay`、`avsync`、`paused-on-cache`、`cache-secs`、`cache-buffering-state` 五项 mpv 运行时属性，支持点击复制，用于诊断音画同步和缓冲问题 |
-| **时间戳版本号** | `lib/build_config.dart`<br>`scripts/build_android_local.ps1` | 版本号 = 上游版本号 + 当前具体时间（`2.0.9.20260620.135050`），APK 命名同步，确保每次构建唯一且可追溯 |
+| **时间戳版本号** | `lib/build_config.dart`<br>`scripts/build_android_local.ps1` | 版本号 = 上游版本号 + 当前具体时间（`2.1.0.20260712.103800`），APK 命名同步，确保每次构建唯一且可追溯 |
 | **首页搜索框/我的搜索按钮隐藏** | 外观设置 | 支持隐藏首页搜索框和"我的"页搜索按钮，布局占位保留 |
 | **修改版标识** | `lib/pages/about/view.dart` | 关于页始终显示"当前为自制修改版"提示；检测到上游更新时提醒升级官方版会丢失本地定制功能 |
 | **signedDecimal 输入格式化器** | `lib/utils/filtering_text.dart` | 新增支持负号和小数的输入格式化器，用于音频延迟等需要负数输入的设置项 |

@@ -3,12 +3,12 @@
 - 已于 2026-06-13 在 Windows 11 上验证 Android release APK 可成功构建。
 - Git 远程 `upstream`（拉取）指向 `https://github.com/bggRGjQaUbCoE/PiliPlus.git`，`origin`（推送）指向 `https://github.com/gzy622/PiliPlus`，`upstream` 的推送 URL 已禁用以防误操作。
 - 初次 Git 化前的完整目录快照保留在分支 `baseline-local-2.0.9` 和标签 `local-baseline-2.0.9`。
-- 项目使用 Flutter 3.44.2、Dart 3.12.2、JDK 21、Gradle 9.5.0、Android SDK 36 和 NDK 28.2.13676358。
+- 项目使用 Flutter 3.44.6、Dart 3.12.2、JDK 21、Gradle 9.5.0、Android SDK 36 和 NDK 28.2.13676358。
 - 本机 Flutter 位于 `C:\tools\flutter`，Android SDK 位于 `C:\Android`。
 - `flutter`、`dart` 和 Android SDK 未加入系统环境变量时，项目脚本 `scripts/build_android_local.ps1` 仍可通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
 - 构建脚本必须兼容双击时使用的 Windows PowerShell 5.1。调用 Java、Flutter 等原生命令时，应局部放宽错误流处理并依据退出码判断，不能让 stderr 输出在全局 `Stop` 策略下触发 `NativeCommandError`。
 - 直接执行 Flutter 命令前需要为当前终端设置 `ANDROID_HOME=C:\Android` 和 `ANDROID_SDK_ROOT=C:\Android`，或运行 `flutter config --android-sdk C:\Android`。
-- 版本号 = 上游版本号 + 当前具体时间（`2.0.9.20260620.141530`），确保每次构建唯一且线性递增。APK 产物命名为 `PiliPlus-<完整版本>-arm64-v8a.apk`。
+- 版本号 = 上游版本号 + 当前具体时间（`2.1.0.20260712.103800`），确保每次构建唯一且线性递增。APK 产物命名为 `PiliPlus-<完整版本>-arm64-v8a.apk`。
 - 已验证的完整构建命令：
 
   ```powershell
