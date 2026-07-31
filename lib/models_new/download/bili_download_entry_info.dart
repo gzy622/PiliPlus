@@ -7,7 +7,6 @@ import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/route_manager.dart';
 
 class BiliDownloadEntryInfo with MultiSelectData {
   int mediaType;
@@ -128,7 +127,7 @@ class BiliDownloadEntryInfo with MultiSelectData {
               '访问${ownerName != null ? '：$ownerName' : '用户主页'}',
               style: const TextStyle(fontSize: 13),
             ),
-            onTap: () => Get.toNamed('/member?mid=$mid'),
+            onTap: () => PageUtils.toMemberPage('/member?mid=$mid'),
           ),
       ],
     ),

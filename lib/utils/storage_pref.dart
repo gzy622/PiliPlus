@@ -719,6 +719,11 @@ abstract final class Pref {
     defaultValue: false,
   );
 
+  static bool get disableUserNameSpaceJump => _setting.get(
+    SettingBoxKey.disableUserNameSpaceJump,
+    defaultValue: false,
+  );
+
   static bool get hideBottomBar => _setting.get(
     SettingBoxKey.hideBottomBar,
     defaultValue: PlatformUtils.isMobile,

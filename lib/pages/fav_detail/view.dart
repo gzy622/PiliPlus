@@ -22,6 +22,7 @@ import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 
 class FavDetailPage extends StatefulWidget {
   const FavDetailPage({super.key});
@@ -432,7 +433,7 @@ class _FavDetailPageState extends State<FavDetailPage> with GridMixin {
                             ),
                           ),
                           GestureDetector(
-                            onTap: () => Get.toNamed(
+                            onTap: () => PageUtils.toMemberPage(
                               '/member?mid=${folderInfo.upper!.mid}',
                             ),
                             child: Text(

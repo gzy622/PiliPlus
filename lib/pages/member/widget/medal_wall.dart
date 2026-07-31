@@ -75,7 +75,7 @@ class MedalWall extends StatelessWidget {
                   if (isLiving) {
                     PiliScheme.routePushFromUrl(item.link!);
                   } else {
-                    PageUtils.toDupNamed('/member?mid=${uinfoMedal.ruid}');
+                    PageUtils.toMemberPage('/member?mid=${uinfoMedal.ruid}');
                   }
                 },
                 visualDensity: .comfortable,
@@ -88,7 +88,7 @@ class MedalWall extends StatelessWidget {
                     _ => null,
                   },
                   onTap: isLiving
-                      ? () => PageUtils.toDupNamed(
+                      ? () => PageUtils.toMemberPage(
                           '/member?mid=${uinfoMedal.ruid}',
                         )
                       : null,

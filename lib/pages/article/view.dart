@@ -580,7 +580,7 @@ class _ArticlePageState extends CommonDynPageState<ArticlePage> {
     return Padding(
       padding: const .symmetric(vertical: 10),
       child: GestureDetector(
-        onTap: () => Get.toNamed(
+        onTap: () => PageUtils.toMemberPage(
           '/member?mid=${controller.summary.author?.mid}',
         ),
         child: SelectionContainer.disabled(

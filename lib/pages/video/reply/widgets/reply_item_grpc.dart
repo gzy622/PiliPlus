@@ -149,7 +149,7 @@ class ReplyItemGrpc extends StatelessWidget {
     Widget header = GestureDetector(
       onTap: () {
         feedBack();
-        Get.toNamed('/member?mid=${replyItem.mid}');
+        PageUtils.toMemberPage('/member?mid=${replyItem.mid}');
       },
       child: TranslucentRow(
         spacing: 12,
@@ -632,7 +632,7 @@ class ReplyItemGrpc extends StatelessWidget {
                             recognizer: NoDeadlineTapGestureRecognizer()
                               ..onTap = () {
                                 feedBack();
-                                Get.toNamed(
+                                PageUtils.toMemberPage(
                                   '/member?mid=${childReply.member.mid}',
                                 );
                               },
@@ -846,8 +846,9 @@ class ReplyItemGrpc extends StatelessWidget {
               text: matchStr,
               style: TextStyle(color: colorScheme.primary),
               recognizer: NoDeadlineTapGestureRecognizer()
-                ..onTap = () =>
-                    Get.toNamed('/member?mid=${content.atNameToMid[name]}'),
+                ..onTap = () => PageUtils.toMemberPage(
+                  '/member?mid=${content.atNameToMid[name]}',
+                ),
             ),
           );
         } else if (_voteRegExp.hasMatch(matchStr)) {

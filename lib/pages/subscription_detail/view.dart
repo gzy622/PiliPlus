@@ -11,6 +11,7 @@ import 'package:PiliPlus/utils/num_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 
 class SubDetailPage extends StatefulWidget {
   const SubDetailPage({super.key});
@@ -187,8 +188,9 @@ class _SubDetailPageState extends State<SubDetailPage> with GridMixin {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          Get.toNamed('/member?mid=${info.upper!.mid}'),
+                      onTap: () => PageUtils.toMemberPage(
+                        '/member?mid=${info.upper!.mid}',
+                      ),
                       child: Text(
                         info.upper!.name!,
                         style: TextStyle(color: theme.colorScheme.primary),

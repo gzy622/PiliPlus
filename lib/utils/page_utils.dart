@@ -42,6 +42,13 @@ abstract final class PageUtils {
     return .fromLTRB(offset.dx, offset.dy, offset.dx, 0);
   }
 
+  static Future<T?>? toMemberPage<T>(String route) {
+    if (Pref.disableUserNameSpaceJump) {
+      return null;
+    }
+    return Get.toNamed<T>(route);
+  }
+
   static Future<void> imageView({
     int initialPage = 0,
     required List<SourceModel> imgList,

@@ -9,6 +9,7 @@ import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 
 class FansPage extends StatefulWidget {
   const FansPage({
@@ -86,7 +87,7 @@ class _FansPageState extends FollowTypePageState<FansPage> {
           );
           return;
         }
-        Get.toNamed('/member?mid=${item.mid}');
+        PageUtils.toMemberPage('/member?mid=${item.mid}');
       },
       onLongPress: flag ? onRemove : null,
       onSecondaryTap: flag && !PlatformUtils.isMobile ? onRemove : null,

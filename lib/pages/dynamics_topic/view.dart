@@ -214,7 +214,7 @@ class _DynTopicPageState extends State<DynTopicPage>
                 margin: const EdgeInsets.only(left: 45, right: 78),
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
-                  onTap: () => Get.toNamed(
+                  onTap: () => PageUtils.toMemberPage(
                     '/member?mid=${response.topicCreator!.uid}',
                   ),
                   child: Row(

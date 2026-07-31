@@ -9,6 +9,7 @@ import 'package:PiliPlus/pages/common/dyn/common_dyn_page.dart';
 import 'package:PiliPlus/pages/common/dyn/reaction/controller.dart';
 import 'package:flutter/material.dart' hide ListTile;
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 
 class DynReactPage extends StatelessWidget {
   const DynReactPage({
@@ -48,7 +49,8 @@ class DynReactPage extends StatelessWidget {
                       dense: true,
                       safeArea: false,
                       visualDensity: .standard,
-                      onTap: () => Get.toNamed('/member?mid=${item.mid}'),
+                      onTap: () =>
+                          PageUtils.toMemberPage('/member?mid=${item.mid}'),
                       leading: PendantAvatar(item.face!, size: 36),
                       title: Text.rich(
                         TextSpan(

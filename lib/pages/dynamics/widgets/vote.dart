@@ -169,8 +169,9 @@ class _VotePanelState extends State<VotePanel> {
                             .map(
                               (e) => ListTile(
                                 dense: true,
-                                onTap: () =>
-                                    Get.toNamed('/member?mid=${e.mid}'),
+                                onTap: () => PageUtils.toMemberPage(
+                                  '/member?mid=${e.mid}',
+                                ),
                                 leading: NetworkImgLayer(
                                   src: e.face,
                                   width: 40,

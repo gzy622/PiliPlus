@@ -248,6 +248,13 @@ List<SettingsModel> get styleSettings => [
     setKey: SettingBoxKey.previewAvatarOnTap,
     defaultVal: false,
   ),
+  const SwitchModel(
+    title: '点击用户名不进入个人空间',
+    subtitle: '开启后用户信息区域的点击不会打开个人空间',
+    leading: Icon(Icons.person_off_outlined),
+    setKey: SettingBoxKey.disableUserNameSpaceJump,
+    defaultVal: false,
+  ),
   NormalModel(
     onTap: (context, setState) => _showQualityDialog(
       context: context,

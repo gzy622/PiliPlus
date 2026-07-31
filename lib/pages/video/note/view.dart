@@ -15,6 +15,7 @@ import 'package:extended_nested_scroll_view/extended_nested_scroll_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 
 class NoteListPage extends CommonSlidePage {
   const NoteListPage({
@@ -230,7 +231,8 @@ class _NoteListPageState extends State<NoteListPage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
-                onTap: () => Get.toNamed('/member?mid=${item.author!.mid}'),
+                onTap: () =>
+                    PageUtils.toMemberPage('/member?mid=${item.author!.mid}'),
                 child: NetworkImgLayer(
                   height: 34,
                   width: 34,
@@ -245,8 +247,9 @@ class _NoteListPageState extends State<NoteListPage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     GestureDetector(
-                      onTap: () =>
-                          Get.toNamed('/member?mid=${item.author!.mid}'),
+                      onTap: () => PageUtils.toMemberPage(
+                        '/member?mid=${item.author!.mid}',
+                      ),
                       child: Row(
                         children: [
                           Text(

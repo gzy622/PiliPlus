@@ -351,11 +351,13 @@ class _LivePageState extends State<LivePage>
                       onTap: () => PageUtils.toLiveRoom(item.roomid),
                       onLongPress: () {
                         Feedback.forLongPress(context);
-                        Get.toNamed('/member?mid=${item.uid}');
+                        PageUtils.toMemberPage('/member?mid=${item.uid}');
                       },
                       onSecondaryTap: PlatformUtils.isMobile
                           ? null
-                          : () => Get.toNamed('/member?mid=${item.uid}'),
+                          : () => PageUtils.toMemberPage(
+                              '/member?mid=${item.uid}',
+                            ),
                       child: Column(
                         mainAxisSize: .min,
                         children: [

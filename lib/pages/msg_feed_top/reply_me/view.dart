@@ -16,6 +16,7 @@ import 'package:PiliPlus/utils/date_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:flutter/material.dart' hide ListTile;
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 
 class ReplyMePage extends StatefulWidget {
   const ReplyMePage({super.key});
@@ -120,7 +121,9 @@ class _ReplyMePageState extends State<ReplyMePage> {
                     onLongPress: onLongPress,
                     onSecondaryTap: PlatformUtils.isMobile ? null : onLongPress,
                     leading: GestureDetector(
-                      onTap: () => Get.toNamed('/member?mid=${item.user?.mid}'),
+                      onTap: () => PageUtils.toMemberPage(
+                        '/member?mid=${item.user?.mid}',
+                      ),
                       child: NetworkImgLayer(
                         width: 45,
                         height: 45,

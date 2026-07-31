@@ -128,7 +128,7 @@ class AuthorPanel extends StatelessWidget {
       header = GestureDetector(
         onTap: () => {
           feedBack(),
-          Get.toNamed('/member?mid=${moduleAuthor.mid}'),
+          PageUtils.toMemberPage('/member?mid=${moduleAuthor.mid}'),
         },
         child: TranslucentRow(
           spacing: 10,

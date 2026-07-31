@@ -11,6 +11,7 @@ import 'package:PiliPlus/utils/extension/widget_ext.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:flutter/material.dart' hide ListTile;
 import 'package:get/get.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 
 class MemberGuard extends StatefulWidget {
   const MemberGuard({super.key});
@@ -93,7 +94,8 @@ class _MemberGuardState extends State<MemberGuard> {
                     return ListTile(
                       safeArea: false,
                       visualDensity: .comfortable,
-                      onTap: () => Get.toNamed('/member?mid=${item.uid}'),
+                      onTap: () =>
+                          PageUtils.toMemberPage('/member?mid=${item.uid}'),
                       leading: _avatar(item.face, 32, item.guardLevel),
                       title: Text(
                         item.username,
@@ -114,7 +116,7 @@ class _MemberGuardState extends State<MemberGuard> {
   Widget _buildTopItem(GuardItem item, double size) {
     final child = GestureDetector(
       behavior: .opaque,
-      onTap: () => Get.toNamed('/member?mid=${item.uid}'),
+      onTap: () => PageUtils.toMemberPage('/member?mid=${item.uid}'),
       child: Padding(
         padding: const .symmetric(vertical: 10.0),
         child: Column(

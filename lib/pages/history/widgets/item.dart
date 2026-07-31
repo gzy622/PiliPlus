@@ -16,7 +16,6 @@ import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:get/get.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 class HistoryItem extends StatelessWidget {
@@ -214,7 +213,9 @@ class HistoryItem extends StatelessWidget {
                   if (item.authorMid != null &&
                       item.authorName?.isNotEmpty == true)
                     PopupMenuItem(
-                      onTap: () => Get.toNamed('/member?mid=${item.authorMid}'),
+                      onTap: () => PageUtils.toMemberPage(
+                        '/member?mid=${item.authorMid}',
+                      ),
                       height: 38,
                       child: Row(
                         children: [

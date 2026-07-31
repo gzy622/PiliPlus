@@ -139,8 +139,9 @@ class _ArticleListPageState extends State<ArticleListPage> with GridMixin {
                     const SizedBox(height: 10),
                     GestureDetector(
                       behavior: HitTestBehavior.opaque,
-                      onTap: () =>
-                          Get.toNamed('/member?mid=${_controller.author!.mid}'),
+                      onTap: () => PageUtils.toMemberPage(
+                        '/member?mid=${_controller.author!.mid}',
+                      ),
                       child: Row(
                         spacing: 10,
                         mainAxisSize: MainAxisSize.min,

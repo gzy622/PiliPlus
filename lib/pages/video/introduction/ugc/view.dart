@@ -692,7 +692,8 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
             text: '@${currentDesc.rawText}',
             style: TextStyle(color: colorSchemePrimary),
             recognizer: NoDeadlineTapGestureRecognizer()
-              ..onTap = () => Get.toNamed('/member?mid=${currentDesc.bizId}'),
+              ..onTap = () =>
+                  PageUtils.toMemberPage('/member?mid=${currentDesc.bizId}'),
           );
         default:
           return const TextSpan();
@@ -732,10 +733,12 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
                 () {
                   if (mid != null) {
                     feedBack();
-                    if (!isPortrait && introController.horizontalMemberPage) {
+                    if (!Pref.disableUserNameSpaceJump &&
+                        !isPortrait &&
+                        introController.horizontalMemberPage) {
                       widget.onShowMemberPage(mid);
                     } else {
-                      Get.toNamed(
+                      PageUtils.toMemberPage(
                         '/member?mid=$mid&from_view_aid=${videoDetailCtr.aid}',
                       );
                     }
@@ -766,13 +769,14 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
     int? ownerMid,
     Staff item,
   ) {
-    void onTap() => Get.toNamed(
+    void onTap() => PageUtils.toMemberPage(
       '/member?mid=${item.mid}&from_view_aid=${videoDetailCtr.aid}',
     );
     return GestureDetector(
       behavior: .opaque,
       onTap: () {
-        if (item.mid == ownerMid &&
+        if (!Pref.disableUserNameSpaceJump &&
+            item.mid == ownerMid &&
             !isPortrait &&
             introController.horizontalMemberPage) {
           widget.onShowMemberPage(ownerMid);
@@ -894,7 +898,7 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
     behavior: .opaque,
     onSecondaryTap:
         PlatformUtils.isDesktop && introController.horizontalMemberPage
-        ? () => Get.toNamed(
+        ? () => PageUtils.toMemberPage(
             '/member?mid=${introController.userStat.value.card?.mid}&from_view_aid=${videoDetailCtr.aid}',
           )
         : null,
