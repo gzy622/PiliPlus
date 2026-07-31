@@ -7,18 +7,15 @@
       1. 检测 Flutter SDK、Java 21、Android SDK
       2. 计算版本号，生成构建配置文件
       3. 运行 flutter pub get
-      4. 执行本机环境修复（TLS / 长路径 / 插件文件恢复）
+      4. 执行本机环境修复（TLS / 长路径）
       5. 构建 release APK（仅 arm64-v8a）
       6. 输出 APK 信息：路径、大小、SHA256、版本号、applicationId
 
-.PARAMETER WithPatch
-    应用 Flutter SDK 补丁（patch.ps1）。默认不启用。
 .PARAMETER Dev
     构建 dev 版本（applicationId 带 .dev 后缀）。
 #>
 
 param(
-    [switch]$WithPatch,
     [switch]$Dev
 )
 
@@ -68,7 +65,7 @@ if (Test-Path $fvmLink) {
 if (-not $FlutterRoot -and $env:FLUTTER_ROOT -and (Test-Path $env:FLUTTER_ROOT)) { $FlutterRoot = $env:FLUTTER_ROOT }
 # 3) FVM 缓存
 if (-not $FlutterRoot) {
-    $fvmPath = jp $env:USERPROFILE ".fvm" "versions" "3.44.2"
+    $fvmPath = jp $env:USERPROFILE ".fvm" "versions" "3.44.8"
     if (Test-Path $fvmPath) { $FlutterRoot = $fvmPath }
 }
 # 4) C:\tools\flutter（本机安装路径）
@@ -77,7 +74,7 @@ if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter")) { $FlutterRoot = "C:\
 if (-not $FlutterRoot) {
     try { $exe = (Get-Command flutter.bat -ErrorAction Stop).Source; $FlutterRoot = (Get-Item $exe).Directory.Parent.FullName } catch {}
 }
-if (-not $FlutterRoot) { Write-Err "找不到 Flutter SDK。先安装: fvm install 3.44.2 && fvm use" }
+if (-not $FlutterRoot) { Write-Err "找不到 Flutter SDK。先安装: fvm install 3.44.8 && fvm use" }
 Write-Ok "Flutter: $FlutterRoot"
 
 # ─── 2. 检测 Java 21 ──────────────────────────────────────────
@@ -157,19 +154,7 @@ Write-Ok "依赖安装完成"
 # 7a. Git 长路径（Windows 特有）
 git config --global core.longpaths true 2>$null
 
-# 7b. flutter_inappwebview 文件恢复
-$inappwebviewDirs = Get-ChildItem (Join-Path $env:USERPROFILE "AppData\Local\Pub\Cache\git") -Directory -Filter "flutter_inappwebview*" -ErrorAction SilentlyContinue
-foreach ($dir in $inappwebviewDirs) {
-    Push-Location $dir.FullName
-    $deleted = git diff --name-only --diff-filter=D HEAD 2>$null
-    if ($deleted) {
-        git checkout HEAD -- $deleted 2>$null
-        Write-Ok "已恢复 $($dir.Name) 中被删除的源文件"
-    }
-    Pop-Location
-}
-
-# 7c. TLS 修复
+# 7b. TLS 修复
 $gradleProps = jp $ProjectRoot "android" "gradle.properties"
 $gc = Get-Content $gradleProps -Raw -ErrorAction SilentlyContinue
 if ($gc -and $gc -notmatch '-Dhttps\.protocols=') {
@@ -178,7 +163,7 @@ if ($gc -and $gc -notmatch '-Dhttps\.protocols=') {
     Write-Ok "已应用 TLS 修复（gradle.properties）"
 }
 
-# 7d. 预下载 media-kit 原生库 jar（如果不存在）
+# 7c. 预下载 media-kit 原生库 jar（如果不存在）
 $localJarsDir = jp $ProjectRoot "build" "local_jars"
 $jarUrls = @(
     "https://github.com/bggRGjQaUbCoE/libmpv-android-video-build/releases/download/vnext/default-arm64-v8a.jar"
