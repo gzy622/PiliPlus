@@ -10,6 +10,7 @@ import 'package:PiliPlus/pages/common/slide/common_slide_page.dart';
 import 'package:PiliPlus/pages/pgc_review/view.dart';
 import 'package:PiliPlus/pages/search/widgets/search_text.dart';
 import 'package:PiliPlus/utils/extension/scroll_controller_ext.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart' hide TabBarView;
 import 'package:get/get.dart';
@@ -188,7 +189,7 @@ class _IntroDetailState extends State<PgcIntroPanel>
             style: textStyle,
           ),
         ],
-        if (widget.videoTags?.isNotEmpty == true) ...[
+        if (!Pref.hideVideoTags && widget.videoTags?.isNotEmpty == true) ...[
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,

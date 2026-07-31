@@ -709,6 +709,11 @@ abstract final class Pref {
     defaultValue: false,
   );
 
+  static bool get hideVideoTags => _setting.get(
+    SettingBoxKey.hideVideoTags,
+    defaultValue: false,
+  );
+
   static bool get hideBottomBar => _setting.get(
     SettingBoxKey.hideBottomBar,
     defaultValue: PlatformUtils.isMobile,

@@ -26,6 +26,7 @@ import 'package:PiliPlus/utils/id_utils.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/share_utils.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
@@ -71,7 +72,9 @@ class PgcIntroController extends CommonIntroController {
           queryPgcLikeCoinFav();
         }
       }
-      queryVideoTags();
+      if (!Pref.hideVideoTags) {
+        queryVideoTags();
+      }
     }
   }
 

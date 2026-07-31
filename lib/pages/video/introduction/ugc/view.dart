@@ -40,6 +40,7 @@ import 'package:PiliPlus/utils/num_utils.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/platform_utils.dart';
 import 'package:PiliPlus/utils/request_utils.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
@@ -290,15 +291,16 @@ class _UgcIntroPanelState extends State<UgcIntroPanel> {
         style: const TextStyle(height: 1.4),
       ),
     ],
-    NoTranslucentArea(
-      child: Obx(() {
-        final videoTags = introController.videoTags.value;
-        if (videoTags == null || videoTags.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return _buildTags(videoTags);
-      }),
-    ),
+    if (!Pref.hideVideoTags)
+      NoTranslucentArea(
+        child: Obx(() {
+          final videoTags = introController.videoTags.value;
+          if (videoTags == null || videoTags.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return _buildTags(videoTags);
+        }),
+      ),
   ];
 
   WidgetSpan _labelWidget(String text, Color bgColor, Color textColor) {

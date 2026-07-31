@@ -230,6 +230,7 @@ abstract final class SettingBoxKey {
       hideBottomBar = 'hideTabBar',
       hideHomeSearch = 'hideHomeSearchBar',
       hideMineSearch = 'hideMineSearch',
+      hideVideoTags = 'hideVideoTags',
       barHideType = 'barHideType',
       tabBarSort = 'tabBarSort',
       dynamicBadgeMode = 'dynamicBadgeMode',

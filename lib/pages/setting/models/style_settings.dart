@@ -233,6 +233,13 @@ List<SettingsModel> get styleSettings => [
     defaultVal: false,
     needReboot: true,
   ),
+  const SwitchModel(
+    title: '隐藏播放页标签',
+    subtitle: '开启后不显示视频标签，重新进入播放页生效',
+    leading: Icon(Icons.label_off_outlined),
+    setKey: SettingBoxKey.hideVideoTags,
+    defaultVal: false,
+  ),
   NormalModel(
     onTap: (context, setState) => _showQualityDialog(
       context: context,
