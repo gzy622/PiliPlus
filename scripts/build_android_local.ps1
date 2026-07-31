@@ -93,13 +93,34 @@ Write-Ok "Java $majorVer at $javaHome"
 
 # ─── 3. 检测 Android SDK ───────────────────────────────────────
 Write-Step "3/5  检测 Android SDK..."
-$androidHome = $env:ANDROID_HOME
-if (-not $androidHome) { $androidHome = $env:ANDROID_SDK_ROOT }
-if (-not $androidHome) {
-    $candidates = @("C:\Android", (jp $env:LOCALAPPDATA "Android" "Sdk"), (jp $env:USERPROFILE "Android" "Sdk"))
-    foreach ($c in $candidates) { if (Test-Path $c) { $androidHome = $c; break } }
+$requiredNdkVersion = "28.2.13676358"
+function Test-AndroidSdk([string]$Path) {
+    if ([string]::IsNullOrWhiteSpace($Path) -or -not (Test-Path $Path -PathType Container)) {
+        return $false
+    }
+    $ndkProperties = jp $Path "ndk" $requiredNdkVersion "source.properties"
+    return (Test-Path $ndkProperties -PathType Leaf)
 }
-if (-not $androidHome) { Write-Err "找不到 Android SDK。设置 ANDROID_HOME 环境变量。" }
+
+# 环境变量可能指向 Android Studio 未完成下载的 SDK。仅在所需 NDK 完整时采用，
+# 否则继续尝试本机已验证的 C:\Android 及其他常见位置。
+$androidHome = $null
+$candidates = @(
+    $env:ANDROID_HOME,
+    $env:ANDROID_SDK_ROOT,
+    "C:\Android",
+    (jp $env:LOCALAPPDATA "Android" "Sdk"),
+    (jp $env:USERPROFILE "Android" "Sdk")
+) | Where-Object { -not [string]::IsNullOrWhiteSpace($_) } | Select-Object -Unique
+foreach ($c in $candidates) {
+    if (Test-AndroidSdk $c) {
+        $androidHome = (Resolve-Path $c).Path
+        break
+    }
+}
+if (-not $androidHome) {
+    Write-Err "找不到包含 NDK $requiredNdkVersion 的完整 Android SDK。请安装该 NDK，或使用 C:\Android。"
+}
 $env:ANDROID_HOME = $androidHome
 $env:ANDROID_SDK_ROOT = $androidHome
 Write-Ok "Android SDK: $androidHome"
