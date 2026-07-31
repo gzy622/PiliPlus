@@ -52,16 +52,22 @@ class NetworkImgLayer extends StatelessWidget {
         return child;
       } else if (isAvatar) {
         child = ClipOval(child: child);
-        if (Pref.previewAvatarOnTap) {
-          return GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () => PageUtils.imageView(
-              imgList: [SourceModel(url: src!)],
-            ),
-            child: child,
-          );
-        }
-        return child;
+        return ValueListenableBuilder(
+          valueListenable: Pref.previewAvatarOnTapNotifier,
+          child: child,
+          builder: (context, previewAvatarOnTap, child) {
+            if (!previewAvatarOnTap) {
+              return child!;
+            }
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => PageUtils.imageView(
+                imgList: [SourceModel(url: src!)],
+              ),
+              child: child,
+            );
+          },
+        );
       } else {
         return ClipRRect(borderRadius: borderRadius, child: child);
       }

@@ -714,10 +714,15 @@ abstract final class Pref {
     defaultValue: false,
   );
 
-  static bool get previewAvatarOnTap => _setting.get(
-    SettingBoxKey.previewAvatarOnTap,
-    defaultValue: false,
+  static final previewAvatarOnTapNotifier = ValueNotifier<bool>(
+    _setting.get(SettingBoxKey.previewAvatarOnTap, defaultValue: false),
   );
+
+  static bool get previewAvatarOnTap => previewAvatarOnTapNotifier.value;
+
+  static void setPreviewAvatarOnTap(bool value) {
+    previewAvatarOnTapNotifier.value = value;
+  }
 
   static bool get disableUserNameSpaceJump => _setting.get(
     SettingBoxKey.disableUserNameSpaceJump,

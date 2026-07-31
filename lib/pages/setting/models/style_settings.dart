@@ -247,6 +247,7 @@ List<SettingsModel> get styleSettings => [
     leading: Icon(Icons.account_circle_outlined),
     setKey: SettingBoxKey.previewAvatarOnTap,
     defaultVal: false,
+    onChanged: Pref.setPreviewAvatarOnTap,
   ),
   const SwitchModel(
     title: '点击用户名不进入个人空间',
