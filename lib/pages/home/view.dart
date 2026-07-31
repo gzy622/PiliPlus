@@ -204,50 +204,48 @@ Widget userAvatar({
     child: Obx(
       () {
         if (mainController.accountService.isLogin.value) {
-          return Stack(
-            clipBehavior: .none,
-            children: [
-              NetworkImgLayer(
-                type: .avatar,
-                width: 34,
-                height: 34,
-                src: mainController.accountService.face.value,
+          return Material(
+            type: .transparency,
+            child: InkWell(
+              onTap: mainController.toMinePage,
+              splashColor: colorScheme.primaryContainer.withValues(
+                alpha: 0.3,
               ),
-              Positioned.fill(
-                child: Material(
-                  type: .transparency,
-                  child: InkWell(
-                    onTap: mainController.toMinePage,
-                    splashColor: colorScheme.primaryContainer.withValues(
-                      alpha: 0.3,
-                    ),
-                    customBorder: const CircleBorder(),
+              customBorder: const CircleBorder(),
+              child: Stack(
+                clipBehavior: .none,
+                children: [
+                  NetworkImgLayer(
+                    type: .avatar,
+                    width: 34,
+                    height: 34,
+                    src: mainController.accountService.face.value,
                   ),
-                ),
+                  Positioned(
+                    right: -4,
+                    bottom: -4,
+                    child: Obx(
+                      () => MineController.anonymity.value
+                          ? IgnorePointer(
+                              child: Container(
+                                padding: const .all(2),
+                                decoration: BoxDecoration(
+                                  shape: .circle,
+                                  color: colorScheme.secondaryContainer,
+                                ),
+                                child: Icon(
+                                  size: 14,
+                                  MdiIcons.incognito,
+                                  color: colorScheme.onSecondaryContainer,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                right: -4,
-                bottom: -4,
-                child: Obx(
-                  () => MineController.anonymity.value
-                      ? IgnorePointer(
-                          child: Container(
-                            padding: const .all(2),
-                            decoration: BoxDecoration(
-                              shape: .circle,
-                              color: colorScheme.secondaryContainer,
-                            ),
-                            child: Icon(
-                              size: 14,
-                              MdiIcons.incognito,
-                              color: colorScheme.onSecondaryContainer,
-                            ),
-                          ),
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ),
-            ],
+            ),
           );
         }
         return SizedBox(
