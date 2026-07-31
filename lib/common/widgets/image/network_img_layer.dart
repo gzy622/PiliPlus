@@ -1,8 +1,10 @@
 import 'package:PiliPlus/common/assets.dart';
 import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/models/common/image_type.dart';
+import 'package:PiliPlus/models/common/image_preview_type.dart';
 import 'package:PiliPlus/utils/extension/num_ext.dart';
 import 'package:PiliPlus/utils/image_utils.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:cached_network_image_ce/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -49,7 +51,17 @@ class NetworkImgLayer extends StatelessWidget {
       if (isEmote) {
         return child;
       } else if (isAvatar) {
-        return ClipOval(child: child);
+        child = ClipOval(child: child);
+        if (Pref.previewAvatarOnTap) {
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => PageUtils.imageView(
+              imgList: [SourceModel(url: src!)],
+            ),
+            child: child,
+          );
+        }
+        return child;
       } else {
         return ClipRRect(borderRadius: borderRadius, child: child);
       }

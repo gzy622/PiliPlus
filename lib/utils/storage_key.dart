@@ -231,6 +231,7 @@ abstract final class SettingBoxKey {
       hideHomeSearch = 'hideHomeSearchBar',
       hideMineSearch = 'hideMineSearch',
       hideVideoTags = 'hideVideoTags',
+      previewAvatarOnTap = 'previewAvatarOnTap',
       barHideType = 'barHideType',
       tabBarSort = 'tabBarSort',
       dynamicBadgeMode = 'dynamicBadgeMode',

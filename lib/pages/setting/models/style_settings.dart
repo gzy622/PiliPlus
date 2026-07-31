@@ -241,6 +241,13 @@ List<SettingsModel> get styleSettings => [
     setKey: SettingBoxKey.hideVideoTags,
     defaultVal: false,
   ),
+  const SwitchModel(
+    title: '点击头像查看大图',
+    subtitle: '开启后点击用户头像仅查看头像大图，不再进入个人空间',
+    leading: Icon(Icons.account_circle_outlined),
+    setKey: SettingBoxKey.previewAvatarOnTap,
+    defaultVal: false,
+  ),
   NormalModel(
     onTap: (context, setState) => _showQualityDialog(
       context: context,

@@ -714,6 +714,11 @@ abstract final class Pref {
     defaultValue: false,
   );
 
+  static bool get previewAvatarOnTap => _setting.get(
+    SettingBoxKey.previewAvatarOnTap,
+    defaultValue: false,
+  );
+
   static bool get hideBottomBar => _setting.get(
     SettingBoxKey.hideBottomBar,
     defaultValue: PlatformUtils.isMobile,
