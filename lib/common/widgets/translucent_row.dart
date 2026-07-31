@@ -71,12 +71,6 @@ class RenderTranslucentRow extends RenderFlex {
 
   @override
   bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
-    if (position.dx >= 0.0 &&
-        position.dx <= extraWidth &&
-        position.dy >= 0.0 &&
-        position.dy < size.height) {
-      return true;
-    }
     RenderBox? child = lastChild;
     while (child != null) {
       final childParentData = child.parentData! as FlexParentData;
@@ -94,6 +88,9 @@ class RenderTranslucentRow extends RenderFlex {
       }
       child = childParentData.previousSibling;
     }
-    return false;
+    return position.dx >= 0.0 &&
+        position.dx <= extraWidth &&
+        position.dy >= 0.0 &&
+        position.dy < size.height;
   }
 }
