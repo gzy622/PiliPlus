@@ -28,7 +28,7 @@ class UpPanel extends StatefulWidget {
 
 class _UpPanelState extends State<UpPanel> {
   late final controller = widget.dynamicsController;
-  late final isTop = controller.upPanelPosition == UpPanelPosition.top;
+  bool get isTop => controller.upPanelPosition.value == UpPanelPosition.top;
 
   void toFollowPage() => Get.to(const LiveFollowPage());
 

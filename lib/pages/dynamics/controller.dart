@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:PiliPlus/http/dynamics.dart';
 import 'package:PiliPlus/http/loading_state.dart';
 import 'package:PiliPlus/models/common/dynamic/dynamics_type.dart';
+import 'package:PiliPlus/models/common/dynamic/up_panel_position.dart';
 import 'package:PiliPlus/models/dynamics/up.dart';
 import 'package:PiliPlus/pages/common/common_data_controller.dart';
 import 'package:PiliPlus/pages/dynamics_tab/controller.dart';
@@ -30,7 +31,7 @@ class DynamicsController
   late bool showLiveUp = Pref.expandDynLivePanel;
   late final _showAllUp = Pref.dynamicsShowAllFollowedUp;
 
-  final upPanelPosition = Pref.upPanelPosition;
+  final Rx<UpPanelPosition> upPanelPosition = Pref.upPanelPosition.obs;
 
   @override
   final AccountService accountService = Get.find<AccountService>();
@@ -58,6 +59,10 @@ class DynamicsController
 
   void _jumpToTab(int mid) {
     tabController.index = mid == -1 ? 0 : 4;
+  }
+
+  void setUpPanelPosition(UpPanelPosition value) {
+    upPanelPosition.value = value;
   }
 
   void onSelectUp(int mid) {

@@ -23,7 +23,6 @@ class DynamicsPage extends StatefulWidget {
 class _DynamicsPageState extends CommonPageState<DynamicsPage>
     with AutomaticKeepAliveClientMixin {
   final _dynamicsController = Get.putOrFind(DynamicsController.new);
-  UpPanelPosition get upPanelPosition => _dynamicsController.upPanelPosition;
   late final MainController _mainController = Get.find<MainController>();
 
   @override
@@ -53,6 +52,7 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
   );
 
   Widget upPanelPart(ThemeData theme) {
+    final upPanelPosition = _dynamicsController.upPanelPosition.value;
     final isTop = upPanelPosition == .top;
     final needBg = upPanelPosition.index > 2;
     return Material(
@@ -118,90 +118,102 @@ class _DynamicsPageState extends CommonPageState<DynamicsPage>
     super.build(context);
     final theme = Theme.of(context);
 
-    Widget? drawer;
-    Widget? endDrawer;
+    return Obx(() {
+      final upPanelPosition = _dynamicsController.upPanelPosition.value;
 
-    Widget? leading;
-    List<Widget>? actions;
+      Widget? drawer;
+      Widget? endDrawer;
 
-    Widget child = tabBarView(
-      controller: _dynamicsController.tabController,
-      children: DynamicsTabType.values
-          .map((e) => DynamicsTabPage(dynamicsType: e))
-          .toList(),
-    );
+      Widget? leading;
+      List<Widget>? actions;
 
-    switch (upPanelPosition) {
-      case UpPanelPosition.top:
-        child = Column(
-          children: [
-            upPanelPart(theme),
-            Expanded(child: child),
-          ],
-        );
-        actions = [_createDynamicBtn(theme)];
-      case UpPanelPosition.leftFixed:
-        child = Row(
-          children: [
-            upPanelPart(theme),
-            Expanded(child: child),
-          ],
-        );
-        actions = [_createDynamicBtn(theme)];
-      case UpPanelPosition.rightFixed:
-        child = Row(
-          children: [
-            Expanded(child: child),
-            upPanelPart(theme),
-          ],
-        );
-        actions = [_createDynamicBtn(theme)];
-      case UpPanelPosition.leftDrawer:
-        drawer = upPanelPart(theme);
-        actions = [_createDynamicBtn(theme)];
-      case UpPanelPosition.rightDrawer:
-        endDrawer = upPanelPart(theme);
-        leading = _createDynamicBtn(theme, isRight: false);
-    }
+      Widget child = tabBarView(
+        controller: _dynamicsController.tabController,
+        children: DynamicsTabType.values
+            .map((e) => DynamicsTabPage(dynamicsType: e))
+            .toList(),
+      );
 
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        primary: false,
-        leading: leading,
-        leadingWidth: 50,
-        toolbarHeight: 50,
-        backgroundColor: Colors.transparent,
-        title: SizedBox(
-          height: 50,
-          child: TabBar(
-            dividerHeight: 0,
-            isScrollable: true,
-            tabAlignment: .center,
-            dividerColor: Colors.transparent,
-            labelColor: theme.colorScheme.primary,
-            indicatorColor: theme.colorScheme.primary,
-            controller: _dynamicsController.tabController,
-            unselectedLabelColor: theme.colorScheme.onSurface,
-            labelStyle:
-                TabBarTheme.of(context).labelStyle?.copyWith(fontSize: 13) ??
-                const TextStyle(fontSize: 13),
-            tabs: DynamicsTabType.values
-                .map((e) => Tab(text: e.label))
-                .toList(),
-            onTap: (index) {
-              if (!_dynamicsController.tabController.indexIsChanging) {
-                _dynamicsController.animateToTop();
-              }
-            },
+      switch (upPanelPosition) {
+        case UpPanelPosition.top:
+          child = Column(
+            children: [
+              upPanelPart(theme),
+              Expanded(child: child),
+            ],
+          );
+          actions = [_createDynamicBtn(theme)];
+        case UpPanelPosition.leftFixed:
+          child = Row(
+            children: [
+              upPanelPart(theme),
+              Expanded(child: child),
+            ],
+          );
+          actions = [_createDynamicBtn(theme)];
+        case UpPanelPosition.rightFixed:
+          child = Row(
+            children: [
+              Expanded(child: child),
+              upPanelPart(theme),
+            ],
+          );
+          actions = [_createDynamicBtn(theme)];
+        case UpPanelPosition.leftDrawer:
+          drawer = upPanelPart(theme);
+          actions = [_createDynamicBtn(theme)];
+        case UpPanelPosition.rightDrawer:
+          endDrawer = upPanelPart(theme);
+          leading = _createDynamicBtn(theme, isRight: false);
+      }
+
+      // MainPage has already reserved the status-bar height for every tab.
+      // Remove it here so this nested Scaffold cannot add it to the AppBar.
+      return MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            primary: false,
+            leading: leading,
+            leadingWidth: 50,
+            toolbarHeight: 50,
+            backgroundColor: Colors.transparent,
+            title: SizedBox(
+              height: 50,
+              child: TabBar(
+                dividerHeight: 0,
+                isScrollable: true,
+                tabAlignment: .center,
+                dividerColor: Colors.transparent,
+                labelColor: theme.colorScheme.primary,
+                indicatorColor: theme.colorScheme.primary,
+                controller: _dynamicsController.tabController,
+                unselectedLabelColor: theme.colorScheme.onSurface,
+                labelStyle:
+                    TabBarTheme.of(
+                      context,
+                    ).labelStyle?.copyWith(fontSize: 13) ??
+                    const TextStyle(fontSize: 13),
+                tabs: DynamicsTabType.values
+                    .map((e) => Tab(text: e.label))
+                    .toList(),
+                onTap: (index) {
+                  if (!_dynamicsController.tabController.indexIsChanging) {
+                    _dynamicsController.animateToTop();
+                  }
+                },
+              ),
+            ),
+            actions: actions,
           ),
+          drawer: drawer,
+          endDrawer: endDrawer,
+          body: onBuild(child),
         ),
-        actions: actions,
-      ),
-      drawer: drawer,
-      endDrawer: endDrawer,
-      body: onBuild(child),
-    );
+      );
+    });
   }
 }

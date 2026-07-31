@@ -16,6 +16,7 @@ import 'package:PiliPlus/models/common/nav_bar_config.dart';
 import 'package:PiliPlus/models/common/theme/theme_color_type.dart';
 import 'package:PiliPlus/models/common/theme/theme_type.dart';
 import 'package:PiliPlus/pages/main/controller.dart';
+import 'package:PiliPlus/pages/dynamics/controller.dart';
 import 'package:PiliPlus/pages/mine/controller.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
 import 'package:PiliPlus/pages/setting/slide_color_picker.dart';
@@ -732,7 +733,12 @@ Future<void> _showUpPosDialog(
   );
   if (res != null) {
     await GStorage.setting.put(SettingBoxKey.upPanelPosition, res.index);
-    SmartDialog.showToast('重启生效');
+    if (Get.isRegistered<DynamicsController>()) {
+      Get.find<DynamicsController>().setUpPanelPosition(res);
+      SmartDialog.showToast('已生效');
+    } else {
+      SmartDialog.showToast('下次打开动态页生效');
+    }
     setState();
   }
 }
