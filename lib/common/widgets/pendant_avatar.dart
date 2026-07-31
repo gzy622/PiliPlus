@@ -3,6 +3,7 @@ import 'package:PiliPlus/common/style.dart';
 import 'package:PiliPlus/common/widgets/extra_hittest_stack.dart';
 import 'package:PiliPlus/common/widgets/image/network_img_layer.dart';
 import 'package:PiliPlus/models/common/avatar_badge_type.dart';
+import 'package:PiliPlus/models/common/image_preview_type.dart';
 import 'package:PiliPlus/models/common/image_type.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/storage_pref.dart';
@@ -76,13 +77,6 @@ class PendantAvatar extends StatelessWidget {
       height: size,
       type: ImageType.avatar,
     );
-    if (onTap != null) {
-      avatar = GestureDetector(
-        behavior: .opaque,
-        onTap: onTap,
-        child: avatar,
-      );
-    }
     Widget child = ExtraHitTestStack(
       clipBehavior: .none,
       alignment: .center,
@@ -96,12 +90,30 @@ class PendantAvatar extends StatelessWidget {
       ],
     );
     if (showPendant) {
-      return SizedBox.square(
+      child = SizedBox.square(
         dimension: preferredSize,
         child: child,
       );
     }
-    return child;
+    return ValueListenableBuilder(
+      valueListenable: Pref.previewAvatarOnTapNotifier,
+      child: child,
+      builder: (context, previewAvatarOnTap, child) {
+        final effectiveOnTap = previewAvatarOnTap && url?.isNotEmpty == true
+            ? () => PageUtils.imageView(
+                imgList: [SourceModel(url: url!)],
+              )
+            : onTap;
+        if (effectiveOnTap == null) {
+          return child!;
+        }
+        return GestureDetector(
+          behavior: .opaque,
+          onTap: effectiveOnTap,
+          child: child,
+        );
+      },
+    );
   }
 
   Widget _buildLive(ColorScheme colorScheme) {
