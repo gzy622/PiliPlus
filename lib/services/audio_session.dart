@@ -10,6 +10,7 @@ import 'package:audio_session/audio_session.dart';
 class AudioSessionHandler {
   late AudioSession session;
   bool _playInterrupted = false;
+  final Completer<void> _ready = Completer<void>();
 
   static final StreamController<bool> _btController =
       StreamController<bool>.broadcast();
@@ -18,12 +19,16 @@ class AudioSessionHandler {
   static Stream<bool> get bluetoothChangedStream => _btController.stream;
   static bool get isBluetoothA2dpConnected => _isBtA2dp;
 
+  Future<void> get ready => _ready.future;
+
   Future<bool> setActive(bool active) {
     return session.setActive(active);
   }
 
   AudioSessionHandler() {
-    initSession();
+    initSession().whenComplete(() {
+      if (!_ready.isCompleted) _ready.complete();
+    });
   }
 
   Future<void> initSession() async {
@@ -93,6 +98,12 @@ class AudioSessionHandler {
         (d) => d.type == AudioDeviceType.bluetoothA2dp && d.isOutput,
       );
       _btController.add(_isBtA2dp);
+      // 启动时若已连蓝牙，devicesStream 不会再发“变化”事件，需主动应用一次。
+      if (Pref.btAutoSwitch) {
+        PlPlayerController.setAudioDelayIfExists(
+          _isBtA2dp ? Pref.audioDelay : 0.0,
+        );
+      }
     } catch (_) {}
   }
 }

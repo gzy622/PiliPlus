@@ -1,6 +1,10 @@
 import 'package:PiliPlus/common/widgets/flutter/list_tile.dart';
 import 'package:flutter/material.dart' hide ListTile;
 
+class SettingsRefreshNotification extends Notification {
+  const SettingsRefreshNotification();
+}
+
 class NormalItem extends StatefulWidget {
   final String? title;
   final ValueGetter<String>? getTitle;
@@ -60,6 +64,7 @@ class _NormalItemState extends State<NormalItem> {
   void refresh() {
     if (mounted) {
       setState(() {});
+      const SettingsRefreshNotification().dispatch(context);
     }
   }
 }

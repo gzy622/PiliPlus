@@ -6,6 +6,7 @@ import 'package:PiliPlus/models/common/video/live_quality.dart';
 import 'package:PiliPlus/models/common/video/video_decode_type.dart';
 import 'package:PiliPlus/models/common/video/video_quality.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
+import 'package:PiliPlus/pages/setting/pages/audio_delay_calib.dart';
 import 'package:PiliPlus/pages/setting/widgets/ordered_multi_select_dialog.dart';
 import 'package:PiliPlus/pages/setting/widgets/select_dialog.dart';
 import 'package:PiliPlus/plugin/pl_player/controller.dart';
@@ -177,9 +178,19 @@ List<SettingsModel> get videoSettings => [
     },
     onTap: _showAudioDelayDialog,
   ),
+  NormalModel(
+    title: '音画延迟校准',
+    subtitle: '数轴游标校准蓝牙延迟，应用后写入 audio-delay 并开启蓝牙自动切换',
+    leading: const Icon(Icons.graphic_eq),
+    onTap: (context, setState) async {
+      final result = await Get.to<double>(const AudioDelayCalibPage());
+      if (result != null) setState();
+    },
+  ),
   const SwitchModel(
     title: '蓝牙自动切换',
-    subtitle: '连接蓝牙耳机时自动应用音频延迟补偿值，断开时自动归零。'
+    subtitle:
+        '连接蓝牙耳机时自动应用音频延迟补偿值，断开时自动归零。'
         '需打开音频延迟并填入负值后生效',
     leading: Icon(Icons.bluetooth_connected),
     setKey: SettingBoxKey.btAutoSwitch,
@@ -507,8 +518,10 @@ void _showAudioDelayDialog(BuildContext context, VoidCallback setState) {
       content: TextFormField(
         autofocus: true,
         initialValue: value,
-        keyboardType:
-            const TextInputType.numberWithOptions(decimal: true, signed: true),
+        keyboardType: const TextInputType.numberWithOptions(
+          decimal: true,
+          signed: true,
+        ),
         onChanged: (val) => value = val,
         inputFormatters: FilteringText.signedDecimal,
         decoration: const InputDecoration(

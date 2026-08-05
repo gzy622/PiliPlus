@@ -675,6 +675,7 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 | 功能 | 涉及文件 | 说明 |
 |------|----------|------|
 | **蓝牙 A2DP 延迟补偿** | `lib/services/audio_session.dart`<br>`lib/plugin/pl_player/controller.dart`<br>`lib/pages/setting/models/video_settings.dart` | 通过 `audio-delay`（mpv 参数）负值补偿蓝牙耳机音频延迟；支持运行时即时生效、保存确认 toast |
+| **音画延迟校准** | `lib/pages/setting/pages/audio_delay_calib.dart`<br>`lib/pages/setting/models/video_settings.dart`<br>`lib/router/app_pages.dart` | 数轴游标扫过中点发「哒~哒~滴」，听见滴声点按；前 3 轮适应、后 8 轮中位数汇总；校准 Player 对齐视频 `ao`/音量后写入现有 `audioDelay` |
 | **蓝牙自动检测切换** | `lib/services/audio_session.dart`<br>`lib/plugin/pl_player/controller.dart`<br>`lib/pages/setting/models/video_settings.dart` | 利用 `audio_session` 包的 `devicesStream` 实时检测蓝牙 A2DP 耳机连接状态，连接时自动应用延迟补偿值，断开时归零 |
 | **播放器诊断** | `lib/pages/video/widgets/header_control.dart`<br>`lib/plugin/pl_player/controller.dart` | 播放信息弹窗中新增 `audio-delay`、`avsync`、`paused-on-cache`、`cache-secs`、`cache-buffering-state` 五项 mpv 运行时属性，支持点击复制，用于诊断音画同步和缓冲问题 |
 | **时间戳版本号** | `lib/build_config.dart`<br>`scripts/build_android_local.ps1` | 版本号 = 上游版本号 + 当前具体时间（`2.1.0.20260712.103800`），APK 命名同步，确保每次构建唯一且可追溯 |

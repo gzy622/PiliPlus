@@ -435,8 +435,29 @@ class PlPlayerController with BlockConfigMixin {
   static String? setAudioDelayIfExists(double value) {
     final player = _instance?._videoPlayerController;
     if (player == null) return null;
-    player.setProperty('audio-delay', value.toString());
+    applyAudioDelayToPlayer(player, value);
     return player.getProperty('audio-delay');
+  }
+
+  /// 考虑「蓝牙自动切换」后的有效 audio-delay（秒）。
+  static double effectiveAudioDelay() {
+    if (Pref.btAutoSwitch && !AudioSessionHandler.isBluetoothA2dpConnected) {
+      return 0.0;
+    }
+    return Pref.audioDelay;
+  }
+
+  /// 写入 mpv：始终设置 audio-delay；非 0 时关闭 autosync，避免互相抢同步。
+  static void applyAudioDelayToPlayer(Player player, double delay) {
+    player.setProperty('audio-delay', delay.toString());
+    if (delay != 0.0) {
+      player.setProperty('autosync', '0');
+    } else {
+      final autosync = Pref.autosync;
+      if (autosync != '0') {
+        player.setProperty('autosync', autosync);
+      }
+    }
   }
 
   static String? getPlayerDiagnostics() {
@@ -765,16 +786,16 @@ class PlPlayerController with BlockConfigMixin {
               .toString(),
       'volume-max': kMaxVolume.toString(),
     };
-    final audioDelay = Pref.btAutoSwitch && !AudioSessionHandler.isBluetoothA2dpConnected
-        ? 0.0
-        : Pref.audioDelay;
-    if (audioDelay != 0.0) {
-      opt['audio-delay'] = audioDelay.toString();
-    } else {
+    final audioDelay = effectiveAudioDelay();
+    // 始终写入，便于复用 Player 时清掉旧值；非 0 时不启用 autosync。
+    opt['audio-delay'] = audioDelay.toString();
+    if (audioDelay == 0.0) {
       final autosync = Pref.autosync;
       if (autosync != '0') {
         opt['autosync'] = autosync;
       }
+    } else {
+      opt['autosync'] = '0';
     }
 
     final player = await Player.create(
@@ -914,12 +935,7 @@ class PlPlayerController with BlockConfigMixin {
     if (kDebugMode) {
       debugPrint('[PlPlayer] open done ${openSw.elapsedMilliseconds}ms');
     }
-    final audioDelay = Pref.btAutoSwitch && !AudioSessionHandler.isBluetoothA2dpConnected
-        ? 0.0
-        : Pref.audioDelay;
-    if (audioDelay != 0.0) {
-      player.setProperty('audio-delay', audioDelay.toString());
-    }
+    applyAudioDelayToPlayer(player, effectiveAudioDelay());
   }
 
   Future<void>? refreshPlayer() {
@@ -927,10 +943,13 @@ class PlPlayerController with BlockConfigMixin {
       return null;
     }
     if (_videoPlayerController case final ctr? when (ctr.current.isNotEmpty)) {
-      return ctr.open(
-        ctr.current.last.copyWith(start: ctr.state.position),
-        play: true,
-      );
+      return () async {
+        await ctr.open(
+          ctr.current.last.copyWith(start: ctr.state.position),
+          play: true,
+        );
+        applyAudioDelayToPlayer(ctr, effectiveAudioDelay());
+      }();
     }
     return null;
   }

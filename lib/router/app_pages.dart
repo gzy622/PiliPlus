@@ -52,6 +52,7 @@ import 'package:PiliPlus/pages/popular_series/view.dart';
 import 'package:PiliPlus/pages/search/view.dart';
 import 'package:PiliPlus/pages/search_result/view.dart';
 import 'package:PiliPlus/pages/search_trending/view.dart';
+import 'package:PiliPlus/pages/setting/pages/audio_delay_calib.dart';
 import 'package:PiliPlus/pages/setting/pages/bar_set.dart';
 import 'package:PiliPlus/pages/setting/pages/color_select.dart';
 import 'package:PiliPlus/pages/setting/pages/display_mode.dart';
@@ -110,6 +111,10 @@ class Routes {
     GetPage(name: '/memberSearch', page: () => const MemberSearchPage()),
     //
     GetPage(name: '/blackListPage', page: () => const BlackListPage()),
+    GetPage(
+      name: '/audioDelayCalib',
+      page: () => const AudioDelayCalibPage(),
+    ),
     GetPage(name: '/colorSetting', page: () => const ColorSelectPage()),
     GetPage(name: '/fontSizeSetting', page: () => const FontSizeSelectPage()),
     // 屏幕帧率

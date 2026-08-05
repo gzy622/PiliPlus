@@ -1,6 +1,7 @@
 import 'package:PiliPlus/common/widgets/scaffold/simple_scaffold.dart';
 import 'package:PiliPlus/models/common/setting_type.dart';
 import 'package:PiliPlus/pages/setting/models/model.dart';
+import 'package:PiliPlus/pages/setting/widgets/normal_item.dart';
 import 'package:flutter/material.dart';
 
 class CommonSetting extends StatefulWidget {
@@ -50,15 +51,21 @@ class _CommonSettingState extends State<CommonSetting> {
     final showAppBar = widget.showAppBar;
     return SimpleScaffold(
       appBar: showAppBar ? AppBar(title: Text(widget.settingType.title)) : null,
-      body: ListView.builder(
-        key: ValueKey(widget.settingType),
-        padding: EdgeInsets.only(
-          left: showAppBar ? padding.left : 0,
-          right: showAppBar ? padding.right : 0,
-          bottom: padding.bottom + 100,
+      body: NotificationListener<SettingsRefreshNotification>(
+        onNotification: (_) {
+          if (mounted) setState(() {});
+          return false;
+        },
+        child: ListView.builder(
+          key: ValueKey(widget.settingType),
+          padding: EdgeInsets.only(
+            left: showAppBar ? padding.left : 0,
+            right: showAppBar ? padding.right : 0,
+            bottom: padding.bottom + 100,
+          ),
+          itemCount: settings.length,
+          itemBuilder: (context, index) => settings[index].widget,
         ),
-        itemCount: settings.length,
-        itemBuilder: (context, index) => settings[index].widget,
       ),
     );
   }

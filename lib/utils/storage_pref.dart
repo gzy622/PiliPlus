@@ -288,8 +288,10 @@ abstract final class Pref {
     defaultValue: Platform.isAndroid ? '30' : '0',
   );
 
-  static double get audioDelay =>
-      _setting.get(SettingBoxKey.audioDelay, defaultValue: 0.0);
+  static double get audioDelay {
+    final v = _setting.get(SettingBoxKey.audioDelay, defaultValue: 0.0);
+    return v is num ? v.toDouble() : 0.0;
+  }
 
   static bool get btAutoSwitch =>
       _setting.get(SettingBoxKey.btAutoSwitch, defaultValue: false);
