@@ -20,7 +20,7 @@
   $timeStamp = Get-Date -Format 'yyyyMMdd.HHmmss'
   $vName = "$upstream.$timeStamp"
   $vCode = [int](Get-Date -Format 'yyyyMMdd')
-  $buildTime = [int](Get-Date -UFormat %s)
+  $buildTime = [int]([DateTimeOffset]::Now.ToUnixTimeSeconds())
   $commitHash = (git rev-parse HEAD).Substring(0,9)
   @{ 'pili.name'=$vName; 'pili.code'=$vCode; 'pili.hash'=$commitHash; 'pili.time'=$buildTime } | ConvertTo-Json -Compress | Set-Content pili_release.json -Encoding UTF8
 
