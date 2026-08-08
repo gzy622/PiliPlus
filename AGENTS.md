@@ -45,3 +45,13 @@
 
 - “关于”页必须始终显示“当前为自制修改版”提示。
 - 检测到上游新版本并展示更新弹窗时，必须提醒升级官方版本会丢失本地定制功能；无更新或检查失败时不额外打扰。
+
+# 同步上游与合并验证
+
+- 同步上游的标准流程是运行 `scripts/merge_upstream.ps1`：拉取 upstream → merge-tree 预检 → 合并 → 已知 API 哨兵检查 → `flutter pub get` → `flutter analyze`（仅以 `error -` 行为失败判定，info 不致命）→ debug APK 构建验证。
+- 手动解决合并冲突后，用 `.\scripts\merge_upstream.ps1 -VerifyOnly` 重跑验证（跳过拉取/预检/合并）；`-SkipBuild` 可跳过最后的 debug 构建。
+- 合并前确保工作区干净、分支为 `main`；合并产生的兼容性修复应单独提交并在提交消息中注明修复原因。
+- 已知差异：上游 CI 通过 `lib/scripts/patch.ps1` 给 Flutter SDK 源码打补丁（如 `text_painter.patch` 暴露 `TextPainter.layoutCache`），本机本地构建不执行该补丁步骤。因此上游代码若用到本机 Flutter 3.44.8 未公开的 API，合并后才会暴露编译错误。
+  - `TextPainter.layoutCache` 是本机 Flutter 3.44.8 的内部 API（属于私有类 `_TextLayout`），应改用公开的 `computeLineMetrics()`。
+  - 不要改动 `lib/utils/grid.dart` 中 `SliverGridLayout.layoutCache`（那是该类的自定义字段，与 TextPainter 无关）；哨兵检查只匹配 `textPainter.layoutCache` 与 `layoutCache?.lineMetrics`，避免误报。
+- 合并后必须先通过 analyze 与 debug 构建验证再提交；推送 `origin` 需人工确认。
