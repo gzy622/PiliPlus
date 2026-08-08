@@ -154,4 +154,7 @@ test*
 # Local agent/runtime caches
 .codegraph/
 .reasonix/
+.cursor/
+.zcode/
+artifacts/
 nul
