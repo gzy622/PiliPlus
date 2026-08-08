@@ -89,7 +89,7 @@ class RenderParagraphEllipsis extends RenderParagraph {
   void performLayout() {
     super.performLayout();
     if (textPainter.didExceedMaxLines &&
-        textPainter.layoutCache?.lineMetrics.last.width == 0.0) {
+        textPainter.computeLineMetrics().last.width == 0.0) {
       _initEllipsisPainterIfNeeded();
     } else {
       _disposeEllipsis();
