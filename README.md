@@ -699,3 +699,13 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 
 <sup>📐 本架构地图由 CodeGraph 符号分析 + explore 子代理生成 | 文件:line 引用均为静态分析验证</sup>
 <sup>⚠️ 此仓库为 [bggRGjQaUbCoE/PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus) 的本地修改版，定制功能见[第十二章](#十二本地定制功能)。升级官方版会丢失本地定制功能。</sup>
+
+## Star History
+
+<a href="https://star-history.dera.page/#bggRGjQaUbCoE/PiliPlus&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://star-history.dera.page/svg?repos=bggRGjQaUbCoE/PiliPlus&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://star-history.dera.page/svg?repos=bggRGjQaUbCoE/PiliPlus&type=Date" />
+   <img alt="Star History Chart" src="https://star-history.dera.page/svg?repos=bggRGjQaUbCoE/PiliPlus&type=Date" />
+ </picture>
+</a>
