@@ -6,19 +6,17 @@ Widget scMenuBuilder(
 ) {
   final buttonItems = state.contextMenuButtonItems;
   if (state.isUncollapsed) {
-    buttonItems
-      ..insertOrAdd(
-        3,
-        ContextMenuButtonItem(
-          label: '视频',
-          onPressed: () {
-            state.onMenuPressed(
-              (text) => PiliScheme.videoPush(null, text),
-            );
-          },
-        ),
-      )
-      ..insertOrAdd(
+    buttonItems.insertOrAdd(
+      3,
+      ContextMenuButtonItem(
+        label: '视频',
+        onPressed: () {
+          state.onMenuPressed((text) => PiliScheme.videoPush(null, text));
+        },
+      ),
+    );
+    if (!Pref.disableSearch) {
+      buttonItems.insertOrAdd(
         4,
         ContextMenuButtonItem(
           label: '搜索',
@@ -32,6 +30,7 @@ Widget scMenuBuilder(
           },
         ),
       );
+    }
   }
   return AdaptiveTextSelectionToolbar.buttonItems(
     buttonItems: buttonItems,

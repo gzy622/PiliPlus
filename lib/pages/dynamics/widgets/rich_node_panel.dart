@@ -12,6 +12,7 @@ import 'package:PiliPlus/models/dynamics/result.dart';
 import 'package:PiliPlus/pages/dynamics/widgets/vote.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/parse_string.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
@@ -102,17 +103,19 @@ TextSpan? richNode(
             spanChildren.add(
               TextSpan(
                 text: i.origText,
-                style: style,
-                recognizer: NoDeadlineTapGestureRecognizer()
-                  ..onTap = () => Get.toNamed(
-                    '/searchResult',
-                    parameters: {
-                      'keyword': i.origText!.substring(
-                        1,
-                        i.origText!.length - 1,
-                      ),
-                    },
-                  ),
+                style: Pref.disableSearch ? null : style,
+                recognizer: Pref.disableSearch
+                    ? null
+                    : (NoDeadlineTapGestureRecognizer()
+                        ..onTap = () => Get.toNamed(
+                          '/searchResult',
+                          parameters: {
+                            'keyword': i.origText!.substring(
+                              1,
+                              i.origText!.length - 1,
+                            ),
+                          },
+                        )),
               ),
             );
             break;

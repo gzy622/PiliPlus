@@ -229,6 +229,7 @@ abstract final class SettingBoxKey {
       hideBottomBar = 'hideTabBar',
       hideHomeSearch = 'hideHomeSearchBar',
       hideMineSearch = 'hideMineSearch',
+      disableSearch = 'disableSearch',
       hideVideoTags = 'hideVideoTags',
       previewAvatarOnTap = 'previewAvatarOnTap',
       disableUserNameSpaceJump = 'disableUserNameSpaceJump',

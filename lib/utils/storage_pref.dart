@@ -708,6 +708,9 @@ abstract final class Pref {
     defaultValue: false,
   );
 
+  static bool get disableSearch =>
+      _setting.get(SettingBoxKey.disableSearch, defaultValue: false);
+
   static bool get hideVideoTags => _setting.get(
     SettingBoxKey.hideVideoTags,
     defaultValue: false,

@@ -69,9 +69,19 @@ import 'package:PiliPlus/pages/video/view.dart';
 import 'package:PiliPlus/pages/webview/view.dart';
 import 'package:PiliPlus/pages/whisper/view.dart';
 import 'package:PiliPlus/pages/whisper_detail/view.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
+import 'package:flutter/widgets.dart' show RouteSettings;
 import 'package:get/get.dart';
 
+class _SearchDisabledMiddleware extends GetMiddleware {
+  @override
+  RouteSettings? redirect(String? route) =>
+      Pref.disableSearch ? const RouteSettings(name: '/') : null;
+}
+
 class Routes {
+  static final _searchDisabledMiddleware = _SearchDisabledMiddleware();
+
   static final List<GetPage<dynamic>> getPages = [
     GetPage(name: '/', page: () => const MainApp()),
     // 首页(推荐)
@@ -93,9 +103,17 @@ class Routes {
     // 历史记录
     GetPage(name: '/history', page: () => const HistoryPage()),
     // 搜索页面
-    GetPage(name: '/search', page: () => const SearchPage()),
+    GetPage(
+      name: '/search',
+      page: () => const SearchPage(),
+      middlewares: [_searchDisabledMiddleware],
+    ),
     // 搜索结果
-    GetPage(name: '/searchResult', page: () => const SearchResultPage()),
+    GetPage(
+      name: '/searchResult',
+      page: () => const SearchResultPage(),
+      middlewares: [_searchDisabledMiddleware],
+    ),
     // 动态
     GetPage(name: '/dynamics', page: () => const DynamicsPage()),
     // 动态详情
@@ -157,7 +175,11 @@ class Routes {
     GetPage(name: '/createFav', page: () => const CreateFavPage()),
     GetPage(name: '/editProfile', page: () => const EditProfilePage()),
     GetPage(name: '/settingsSearch', page: () => const SettingsSearchPage()),
-    GetPage(name: '/searchTrending', page: () => const SearchTrendingPage()),
+    GetPage(
+      name: '/searchTrending',
+      page: () => const SearchTrendingPage(),
+      middlewares: [_searchDisabledMiddleware],
+    ),
     GetPage(name: '/dynTopic', page: () => const DynTopicPage()),
     GetPage(name: '/articleList', page: () => const ArticleListPage()),
     GetPage(name: '/barSetting', page: () => const BarSetPage()),

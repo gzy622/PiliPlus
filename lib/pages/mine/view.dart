@@ -155,7 +155,7 @@ class _MediaPageState extends CommonPageState<MinePage>
             ),
           ),
         if (!_mainController.hasHome) ...[
-          if (Pref.hideMineSearch)
+          if (Pref.hideMineSearch || Pref.disableSearch)
             const SizedBox(width: 48)
           else
             IconButton(

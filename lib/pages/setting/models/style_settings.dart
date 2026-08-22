@@ -229,6 +229,14 @@ List<SettingsModel> get styleSettings => [
     needReboot: true,
   ),
   const SwitchModel(
+    title: '禁用站内搜索',
+    subtitle: '开启后隐藏站内搜索入口和文本选择菜单中的“站内搜索”选项',
+    leading: Icon(Icons.search_off_outlined),
+    setKey: SettingBoxKey.disableSearch,
+    defaultVal: false,
+    needReboot: true,
+  ),
+  const SwitchModel(
     title: '隐藏“我的”页搜索按钮',
     subtitle: '开启后隐藏“我的”页顶部搜索按钮，其他按钮位置不变',
     leading: Icon(Icons.person_search_outlined),

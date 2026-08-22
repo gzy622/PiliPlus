@@ -1,6 +1,7 @@
 import 'package:PiliPlus/utils/extension/get_ext.dart';
 import 'package:PiliPlus/utils/extension/iterable_ext.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:get/get.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -13,21 +14,23 @@ extension SelectableRegionStateExt on SelectableRegionState {
   }) {
     if (isUncollapsed) {
       final isScheme = selectedText?.startsWith(_schemeRegex) == true;
-      buttonItems.insertOrAdd(
-        index,
-        ContextMenuButtonItem(
-          label: isScheme ? '打开' : '站内搜索',
-          onPressed: () => onMenuPressed(
-            isScheme
-                ? PageUtils.handleWebview
-                : (text) => Get.offOrToNamed(
-                    '/searchResult',
-                    parameters: {'keyword': text},
-                    off: Get.routing.route is! PageRoute,
-                  ),
+      if (isScheme || !Pref.disableSearch) {
+        buttonItems.insertOrAdd(
+          index,
+          ContextMenuButtonItem(
+            label: isScheme ? '打开' : '站内搜索',
+            onPressed: () => onMenuPressed(
+              isScheme
+                  ? PageUtils.handleWebview
+                  : (text) => Get.offOrToNamed(
+                      '/searchResult',
+                      parameters: {'keyword': text},
+                      off: Get.routing.route is! PageRoute,
+                    ),
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
