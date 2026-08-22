@@ -4,7 +4,6 @@ import 'package:PiliPlus/pages/share/view.dart' show UserModel;
 import 'package:PiliPlus/utils/feed_back.dart';
 import 'package:PiliPlus/utils/request_utils.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
-import 'package:get/get.dart';
 import 'package:material_ui/material_ui.dart';
 
 class FollowItem extends StatelessWidget {
