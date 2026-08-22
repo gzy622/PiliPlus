@@ -237,7 +237,14 @@ if (-not $apk) { $apk = $originalApk }
 # ─── 10. 输出摘要 ─────────────────────────────────────────────
 $Elapsed = (Get-Date) - $ScriptStart
 $sizeMB = $apk.Length / 1MB
-$sha256 = (Get-FileHash $apk.FullName -Algorithm SHA256).Hash.ToLower()
+$hasher = [System.Security.Cryptography.SHA256]::Create()
+$stream = [System.IO.File]::OpenRead($apk.FullName)
+try {
+    $sha256 = [System.BitConverter]::ToString($hasher.ComputeHash($stream)).Replace("-", "").ToLowerInvariant()
+} finally {
+    $stream.Dispose()
+    $hasher.Dispose()
+}
 $appId = if ($Dev) { "com.example.piliplus.dev" } else { "com.example.piliplus" }
 
 Write-Host ""
