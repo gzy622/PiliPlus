@@ -2,6 +2,7 @@
 
 - 已于 2026-06-13 在 Windows 11 上验证 Android release APK 可成功构建。
 - 已于 2026-07-31 在 Windows 11 上使用当前依赖成功构建 Android debug APK。
+- 已于 2026-08-22 在 Windows 11 上使用 Flutter 3.47.1 成功构建 Android debug APK。
 - Git 远程 `upstream`（拉取）指向 `https://github.com/bggRGjQaUbCoE/PiliPlus.git`，`origin`（推送）指向 `https://github.com/gzy622/PiliPlus`，`upstream` 的推送 URL 已禁用以防误操作。
 - 初次 Git 化前的完整目录快照保留在分支 `baseline-local-2.0.9` 和标签 `local-baseline-2.0.9`。
 - 项目使用 Flutter 3.47.1、Dart 3.13.1、JDK 21、Gradle 9.5.0、Android SDK 36、NDK 28.2.13676358 和 CMake 3.22.1。
