@@ -4,12 +4,12 @@
 - 已于 2026-07-31 在 Windows 11 上使用当前依赖成功构建 Android debug APK。
 - Git 远程 `upstream`（拉取）指向 `https://github.com/bggRGjQaUbCoE/PiliPlus.git`，`origin`（推送）指向 `https://github.com/gzy622/PiliPlus`，`upstream` 的推送 URL 已禁用以防误操作。
 - 初次 Git 化前的完整目录快照保留在分支 `baseline-local-2.0.9` 和标签 `local-baseline-2.0.9`。
-- 项目使用 Flutter 3.44.8、Dart 3.12.2、JDK 21、Gradle 9.5.0、Android SDK 36、NDK 28.2.13676358 和 CMake 3.22.1。
+- 项目使用 Flutter 3.47.1、Dart 3.13.1、JDK 21、Gradle 9.5.0、Android SDK 36、NDK 28.2.13676358 和 CMake 3.22.1。
 - `flutter_inappwebview` 使用 pub.dev 发布的 `6.2.0-beta.3`；不要重新加入 Android 或 Windows Git 覆盖。旧 Git 依赖在 Windows Pub 缓存中会因路径过长缺少 Java 文件，而稳定版 `6.1.5` 的 Android 平台包不支持 AGP 9 的 ProGuard 配置。
-- 本机 Flutter 位于 `C:\tools\flutter`，Android SDK 位于 `C:\Android`。
+- 本机 Flutter 位于 `C:\tools\flutter-3.47.1`，Android SDK 位于 `C:\Android`。
 - `flutter`、`dart` 和 Android SDK 未加入系统环境变量时，项目脚本 `scripts/build_android_local.ps1` 仍可通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
 - 构建脚本必须兼容双击时使用的 Windows PowerShell 5.1。调用 Java、Flutter 等原生命令时，应局部放宽错误流处理并依据退出码判断，不能让 stderr 输出在全局 `Stop` 策略下触发 `NativeCommandError`。
-- 直接执行 Flutter 命令前需要为当前终端设置 `ANDROID_HOME=C:\Android` 和 `ANDROID_SDK_ROOT=C:\Android`，或运行 `flutter config --android-sdk C:\Android`。
+- 直接执行 Flutter 命令前需要为当前终端设置 `ANDROID_HOME=C:\Android` 和 `ANDROID_SDK_ROOT=C:\Android`，并以 `FLUTTER_ROOT=C:\tools\flutter-3.47.1` 运行 `lib/scripts/patch.ps1 android`，使上游依赖的 Flutter 和 `material_ui` 补丁生效。
 - 版本号 = 上游版本号 + 当前具体时间（`2.1.0.20260712.103800`），确保每次构建唯一且线性递增。APK 产物命名为 `PiliPlus-<完整版本>-arm64-v8a.apk`。
 - 已验证的完整构建命令：
 
@@ -26,7 +26,7 @@
 
   # 2. 构建
   $env:ANDROID_HOME='C:\Android'; $env:ANDROID_SDK_ROOT='C:\Android'
-  C:\tools\flutter\bin\flutter.bat build apk --release --target-platform android-arm64 --split-per-abi --dart-define-from-file=pili_release.json --no-pub
+  C:\tools\flutter-3.47.1\bin\flutter.bat build apk --release --target-platform android-arm64 --split-per-abi --dart-define-from-file=pili_release.json --no-pub
 
   # 3. 重命名 APK
   Rename-Item -Path "build\app\outputs\flutter-apk\app-arm64-v8a-release.apk" -NewName "PiliPlus-$vName-arm64-v8a.apk"
