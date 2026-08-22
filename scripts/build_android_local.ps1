@@ -180,7 +180,7 @@ git config --global core.longpaths true 2>$null
 $gradleProps = jp $ProjectRoot "android" "gradle.properties"
 $gc = Get-Content $gradleProps -Raw -ErrorAction SilentlyContinue
 if ($gc -and $gc -notmatch '-Dhttps\.protocols=') {
-    $gc = $gc -replace 'org\.gradle\.jvmargs=(.*)', 'org.gradle.jvmargs=$1 -Dhttps.protocols=TLSv1.2'
+    $gc = $gc -replace 'org\.gradle\.jvmargs=(.*)', 'org.gradle.jvmargs=$1 -Dhttps.protocols=TLSv1.3,TLSv1.2'
     Set-Content -Path $gradleProps -Value $gc -Encoding UTF8
     Write-Ok "已应用 TLS 修复（gradle.properties）"
 }
