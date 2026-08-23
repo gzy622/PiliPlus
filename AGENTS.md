@@ -1,39 +1,30 @@
 # 项目构建基线
 
-- 已于 2026-06-13 在 Windows 11 上验证 Android release APK 可成功构建。
-- 已于 2026-07-31 在 Windows 11 上使用当前依赖成功构建 Android debug APK。
-- 已于 2026-08-22 在 Windows 11 上使用 Flutter 3.47.1 成功构建 Android debug APK。
-- Git 远程 `upstream`（拉取）指向 `https://github.com/bggRGjQaUbCoE/PiliPlus.git`，`origin`（推送）指向 `https://github.com/gzy622/PiliPlus`，`upstream` 的推送 URL 已禁用以防误操作。
-- 初次 Git 化前的完整目录快照保留在分支 `baseline-local-2.0.9` 和标签 `local-baseline-2.0.9`。
-- 项目使用 Flutter 3.47.1、Dart 3.13.1、JDK 21、Gradle 9.5.0、Android SDK 36、NDK 28.2.13676358 和 CMake 3.22.1。
-- `flutter_inappwebview` 使用 pub.dev 发布的 `6.2.0-beta.3`；不要重新加入 Android 或 Windows Git 覆盖。旧 Git 依赖在 Windows Pub 缓存中会因路径过长缺少 Java 文件，而稳定版 `6.1.5` 的 Android 平台包不支持 AGP 9 的 ProGuard 配置。
+## 环境与工具链
+
+- 本机已验证可构建 Android APK：release（2026-06-13）与 debug（2026-07-31、2026-08-22，后者基于 Flutter 3.47.1）均成功。
+- 工具链：Flutter 3.47.1、Dart 3.13.1、JDK 21、Gradle 9.5.0、Android SDK 36、NDK 28.2.13676358、CMake 3.22.1。
 - 本机 Flutter 位于 `C:\tools\flutter-3.47.1`，Android SDK 位于 `C:\Android`。
-- `flutter`、`dart` 和 Android SDK 未加入系统环境变量时，项目脚本 `scripts/build_android_local.ps1` 仍可通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
-- 构建脚本必须兼容双击时使用的 Windows PowerShell 5.1。调用 Java、Flutter 等原生命令时，应局部放宽错误流处理并依据退出码判断，不能让 stderr 输出在全局 `Stop` 策略下触发 `NativeCommandError`。
-- 直接执行 Flutter 命令前需要为当前终端设置 `ANDROID_HOME=C:\Android` 和 `ANDROID_SDK_ROOT=C:\Android`，并以 `FLUTTER_ROOT=C:\tools\flutter-3.47.1` 运行 `lib/scripts/patch.ps1 android`，使上游依赖的 Flutter 和 `material_ui` 补丁生效。
-- 版本号 = 上游版本号 + 当前具体时间（`2.1.0.20260712.103800`），确保每次构建唯一且线性递增。APK 产物命名为 `PiliPlus-<完整版本>-arm64-v8a.apk`。
-- 已验证的完整构建命令：
+- `flutter`、`dart`、Android SDK 未加入系统环境变量时，`scripts/build_android_local.ps1` 仍能通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
+- 构建脚本必须兼容 Windows PowerShell 5.1（双击运行）：调用 Java、Flutter 等原生命令时局部放宽错误流处理并依据退出码判断，避免 stderr 在全局 `Stop` 策略下触发 `NativeCommandError`。
 
-  ```powershell
-  # 1. 生成 pili_release.json
-  $pubspec = Get-Content pubspec.yaml -Raw
-  $upstream = if ($pubspec -match 'version:\s*([\d\.]+)\+(\d+)') { $matches[1] } else { 'SNAPSHOT' }
-  $timeStamp = Get-Date -Format 'yyyyMMdd.HHmmss'
-  $vName = "$upstream.$timeStamp"
-  $vCode = [int](Get-Date -Format 'yyyyMMdd')
-  $buildTime = [int]([DateTimeOffset]::Now.ToUnixTimeSeconds())
-  $commitHash = (git rev-parse HEAD).Substring(0,9)
-  @{ 'pili.name'=$vName; 'pili.code'=$vCode; 'pili.hash'=$commitHash; 'pili.time'=$buildTime } | ConvertTo-Json -Compress | Set-Content pili_release.json -Encoding UTF8
+## 构建流程
 
-  # 2. 构建
-  $env:ANDROID_HOME='C:\Android'; $env:ANDROID_SDK_ROOT='C:\Android'
-  C:\tools\flutter-3.47.1\bin\flutter.bat build apk --release --target-platform android-arm64 --split-per-abi --dart-define-from-file=pili_release.json --no-pub
+- 构建前置统一使用 `scripts/prep_build.ps1`：自动定位 Flutter、校验含所需 NDK 的 Android SDK、设置 `FLUTTER_ROOT`/`GITHUB_WORKSPACE`/`ANDROID_HOME`/`ANDROID_SDK_ROOT`，在现有 PATH 上追加 Flutter bin（不覆盖），并依次执行 `lib/scripts/patch.ps1 android` 与 `scripts/build_android_local.ps1`。`-SkipPatch` 跳过补丁；`-SkipBuild` 仅补丁不构建；`-Dev` 构建 dev 包名。
+- 直接执行 Flutter 命令前，先运行 `scripts/prep_build.ps1 -SkipBuild`（即 `patch.ps1 android`），使上游依赖的 Flutter 与 `material_ui` 补丁生效。补丁后无需还原 `lib/scripts/{material,cupertino}/*.patch`（行尾规范化已在临时目录进行，不写回仓库）。
+- 版本号 = 上游版本号 + 当前具体时间（如 `2.1.0.20260712.103800`），确保每次构建唯一且线性递增。APK 产物命名 `PiliPlus-<完整版本>-arm64-v8a.apk`。
+- 未配置 `android/key.properties` 时，release APK 回退使用 Android Debug 证书签名；正式发布或稳定覆盖安装前必须配置独立 release keystore。
 
-  # 3. 重命名 APK
-  Rename-Item -Path "build\app\outputs\flutter-apk\app-arm64-v8a-release.apk" -NewName "PiliPlus-$vName-arm64-v8a.apk"
-  ```
+## 环境变量注意事项（本机终端与工具调用）
 
-- 未配置 `android/key.properties` 时，release APK 会回退使用 Android Debug 证书签名。用于正式发布或稳定覆盖安装前必须配置独立 release keystore。
+- 调用 Flutter/构建/补丁时，环境变量通过 PowerShell 内赋值或工具 `env` 参数传递；不要在 bash 命令里使用 `$env:` 前缀（bash 非 PowerShell）。
+- 使用工具 `env` 参数时不要设置 `Path` 项（会整体覆盖系统 PATH，挤掉 `git`/`flutter`）；需要追加路径时在命令内用 `$env:Path='<项>;' + $env:Path`。
+
+## Git 与版本库
+
+- `upstream`（拉取）→ `https://github.com/bggRGjQaUbCoE/PiliPlus.git`；`origin`（推送）→ `https://github.com/gzy622/PiliPlus`；`upstream` 的推送 URL 已禁用。
+- 初次 Git 化前的完整目录快照保留在分支 `baseline-local-2.0.9` 与标签 `local-baseline-2.0.9`。
+- `flutter_inappwebview` 使用 pub.dev 发布的 `6.2.0-beta.3`；不要重新加入 Android 或 Windows Git 覆盖。旧 Git 依赖在 Windows Pub 缓存会因路径过长缺少 Java 文件；稳定版 `6.1.5` 的 Android 平台包不支持 AGP 9 的 ProGuard 配置。
 
 # 首页搜索框显示规则
 
@@ -52,7 +43,7 @@
 - 同步上游的标准流程是运行 `scripts/merge_upstream.ps1`：拉取 upstream → merge-tree 预检 → 合并 → 已知 API 哨兵检查 → `flutter pub get` → `flutter analyze`（仅以 `error -` 行为失败判定，info 不致命）→ debug APK 构建验证。
 - 手动解决合并冲突后，用 `.\scripts\merge_upstream.ps1 -VerifyOnly` 重跑验证（跳过拉取/预检/合并）；`-SkipBuild` 可跳过最后的 debug 构建。
 - 合并前确保工作区干净、分支为 `main`；合并产生的兼容性修复应单独提交并在提交消息中注明修复原因。
-- 已知差异：上游 CI 通过 `lib/scripts/patch.ps1` 给 Flutter SDK 源码打补丁（如 `text_painter.patch` 暴露 `TextPainter.layoutCache`），本机本地构建不执行该补丁步骤。因此上游代码若用到本机 Flutter 3.44.8 未公开的 API，合并后才会暴露编译错误。
-  - `TextPainter.layoutCache` 是本机 Flutter 3.44.8 的内部 API（属于私有类 `_TextLayout`），应改用公开的 `computeLineMetrics()`。
+- 已知差异：上游 CI 通过 `lib/scripts/patch.ps1` 给 Flutter SDK 源码打补丁（如 `text_painter.patch` 暴露 `TextPainter.layoutCache`），本机本地构建不执行该补丁步骤，因此上游代码若用到本机 Flutter 未公开的 API，合并后才会暴露编译错误。
+  - `TextPainter.layoutCache` 是本机 Flutter 的内部 API（属于私有类 `_TextLayout`），应改用公开的 `computeLineMetrics()`。
   - 不要改动 `lib/utils/grid.dart` 中 `SliverGridLayout.layoutCache`（那是该类的自定义字段，与 TextPainter 无关）；哨兵检查只匹配 `textPainter.layoutCache` 与 `layoutCache?.lineMetrics`，避免误报。
 - 合并后必须先通过 analyze 与 debug 构建验证再提交；推送 `origin` 需人工确认。

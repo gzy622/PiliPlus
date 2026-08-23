@@ -243,7 +243,7 @@ try {
 } catch {
 }
 
-flutter pub get
+& "$env:FLUTTER_ROOT\bin\flutter.bat" pub get
 
 $MaterialUiDir = Get-ChildItem "$PubCacheDir/hosted/pub.dev" -Directory |
     Where-Object { $_.Name -like "material_ui-*" } |
@@ -255,15 +255,18 @@ if (-not $MaterialUiDir) {
 
 Write-Host "material_ui dir: $($MaterialUiDir.FullName)"
 
+# 规范化行尾到临时目录，避免改写仓库内 .patch 文件
+$materialTmpDir = Join-Path $env:TEMP ("piliplus_patch_material_" + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $materialTmpDir -Force | Out-Null
 Get-ChildItem -Path "$env:GITHUB_WORKSPACE/lib/scripts/material" -Filter *.patch | ForEach-Object {
     (Get-Content $_.FullName -Raw) -replace "`r`n", "`n" | 
-        Set-Content -NoNewline $_.FullName
+        Set-Content -NoNewline (Join-Path $materialTmpDir $_.Name)
 }
 
 cd $MaterialUiDir.FullName
 
 foreach ($patch in $patches_material) {
-    git apply "$env:GITHUB_WORKSPACE/$patch"
+    git apply (Join-Path $materialTmpDir (Split-Path $patch -Leaf))
     if ($LASTEXITCODE -eq 0) {
         Write-Host "$patch applied"
     } else {
@@ -300,15 +303,18 @@ if (-not $CupertinoUiDir) {
 
 Write-Host "cupertino_ui dir: $($CupertinoUiDir.FullName)"
 
+# 规范化行尾到临时目录，避免改写仓库内 .patch 文件
+$cupertinoTmpDir = Join-Path $env:TEMP ("piliplus_patch_cupertino_" + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $cupertinoTmpDir -Force | Out-Null
 Get-ChildItem -Path "$env:GITHUB_WORKSPACE/lib/scripts/cupertino" -Filter *.patch | ForEach-Object {
     (Get-Content $_.FullName -Raw) -replace "`r`n", "`n" | 
-        Set-Content -NoNewline $_.FullName
+        Set-Content -NoNewline (Join-Path $cupertinoTmpDir $_.Name)
 }
 
 cd $CupertinoUiDir.FullName
 
 foreach ($patch in $patches_cupertino) {
-    git apply "$env:GITHUB_WORKSPACE/$patch"
+    git apply (Join-Path $cupertinoTmpDir (Split-Path $patch -Leaf))
     if ($LASTEXITCODE -eq 0) {
         Write-Host "$patch applied"
     } else {
