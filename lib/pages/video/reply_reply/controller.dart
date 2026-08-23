@@ -1,7 +1,8 @@
 import 'package:PiliPlus/grpc/bilibili/main/community/reply/v1.pb.dart'
-    show ReplyInfo, DetailListReply;
+    show ReplyInfo, DetailListReply, Mode;
 import 'package:PiliPlus/grpc/reply.dart';
 import 'package:PiliPlus/http/loading_state.dart';
+import 'package:PiliPlus/models/common/reply/reply_sort_type.dart';
 import 'package:PiliPlus/pages/common/publish/publish_route.dart';
 import 'package:PiliPlus/pages/common/reply_controller.dart';
 import 'package:PiliPlus/pages/video/reply_new/view.dart';
@@ -53,6 +54,9 @@ class VideoReplyReplyController extends ReplyController
   @override
   void onInit() {
     super.onInit();
+    // 评论详情默认按时间排序，不写回 Pref，不影响其他评论区
+    sortType.value = ReplySortType.time;
+    mode = Mode.MAIN_LIST_TIME;
     queryData();
   }
 
