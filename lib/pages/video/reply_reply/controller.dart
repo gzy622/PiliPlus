@@ -54,9 +54,9 @@ class VideoReplyReplyController extends ReplyController
   @override
   void onInit() {
     super.onInit();
-    // 评论详情默认按时间排序，不写回 Pref，不影响其他评论区
-    sortType.value = ReplySortType.time;
-    mode = Mode.MAIN_LIST_TIME;
+    final cacheSortType = Pref.reply2SortType;
+    sortType.value = cacheSortType;
+    mode = cacheSortType == .time ? Mode.MAIN_LIST_TIME : Mode.MAIN_LIST_HOT;
     queryData();
   }
 
