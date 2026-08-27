@@ -15,13 +15,13 @@ import 'package:PiliPlus/pages/fav_detail/controller.dart';
 import 'package:PiliPlus/pages/fav_detail/widget/fav_video_card.dart';
 import 'package:PiliPlus/utils/bili_utils.dart';
 import 'package:PiliPlus/utils/grid.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/request_utils.dart';
 import 'package:PiliPlus/utils/share_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:PiliPlus/utils/page_utils.dart';
+import 'package:material_ui/material_ui.dart';
 
 class FavDetailPage extends StatefulWidget {
   const FavDetailPage({super.key});

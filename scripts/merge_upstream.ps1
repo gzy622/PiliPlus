@@ -72,12 +72,16 @@ if ($LASTEXITCODE -ne 0 -or $branch -ne "main") {
 }
 Write-Ok "分支: $branch"
 
-$dirty = @(& git status --porcelain 2>$null | Where-Object { $_ -notmatch '^\?\?' })
-if ($dirty.Count -gt 0) {
-    $dirty | ForEach-Object { Write-Host "    $_" }
-    Write-Err "工作区有未提交的修改，请先提交或暂存。"
+if (-not $VerifyOnly) {
+    $dirty = @(& git status --porcelain 2>$null | Where-Object { $_ -notmatch '^\?\?' })
+    if ($dirty.Count -gt 0) {
+        $dirty | ForEach-Object { Write-Host "    $_" }
+        Write-Err "工作区有未提交的修改，请先提交或暂存。"
+    }
+    Write-Ok "工作区干净（未跟踪文件除外）"
+} else {
+    Write-Ok "工作区（VerifyOnly 模式跳过干净检查）"
 }
-Write-Ok "工作区干净（未跟踪文件除外）"
 
 # 定位 Flutter SDK（同 build_android_local.ps1 的候选逻辑）
 $FlutterRoot = $null

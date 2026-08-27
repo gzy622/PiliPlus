@@ -11,11 +11,11 @@ import 'package:PiliPlus/pages/live_room/contribution_rank/controller.dart';
 import 'package:PiliPlus/pages/member/widget/medal_widget.dart';
 import 'package:PiliPlus/utils/color_utils.dart';
 import 'package:PiliPlus/utils/extension/scroll_controller_ext.dart';
+import 'package:PiliPlus/utils/page_utils.dart';
 import 'package:PiliPlus/utils/utils.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
-import 'package:material_ui/material_ui.dart';
 import 'package:get/get.dart';
-import 'package:PiliPlus/utils/page_utils.dart';
+import 'package:material_ui/material_ui.dart';
 
 class ContributionRankPanel extends StatefulWidget {
   const ContributionRankPanel({
