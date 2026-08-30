@@ -207,7 +207,8 @@ for ($i = 0; $i -lt $jarUrls.Count; $i++) {
 # ─── 8. 构建 APK ──────────────────────────────────────────────
 Write-Step "5/5  构建 APK（arm64-v8a）..."
 $buildArgs = @("build", "apk", "--release", "--target-platform", "android-arm64",
-               "--split-per-abi", "--dart-define-from-file=pili_release.json", "--pub")
+               "--split-per-abi", "--dart-define-from-file=pili_release.json",
+               "--build-name=$versionName", "--build-number=$dateCode", "--pub")
 if ($Dev) { $buildArgs += "--android-project-arg"; $buildArgs += "dev=1" }
 
 $buildResult = Invoke-Native $flutterExe $buildArgs
@@ -233,6 +234,12 @@ if ($originalApk.Name -ne $apkName) {
 }
 $apk = Get-ChildItem $apkPath -ErrorAction SilentlyContinue
 if (-not $apk) { $apk = $originalApk }
+
+# 复制到桌面（如存在）
+$desktopDir = [Environment]::GetFolderPath('Desktop')
+if ($desktopDir -and (Test-Path $desktopDir)) {
+    Copy-Item -LiteralPath $apk.FullName -Destination (Join-Path $desktopDir $apkName) -Force -ErrorAction SilentlyContinue
+}
 
 # ─── 10. 输出摘要 ─────────────────────────────────────────────
 $Elapsed = (Get-Date) - $ScriptStart

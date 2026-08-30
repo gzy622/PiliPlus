@@ -4,8 +4,8 @@
   <img width="100" src="assets/images/logo/logo.png">
   <p><strong>使用 Flutter 开发的 BiliBili 第三方客户端</strong></p>
   <p><strong>⚠️ 自制修改版 — 包含本地定制功能</strong></p>
-  <p>基于上游 v2.1.0 · Flutter 3.44.8 · Dart >=3.12.0 · GetX · media_kit</p>
-  <p>版本 = 上游版本号 + 构建时间戳（如 <code>2.1.0.20260712.103800</code>）</p>
+  <p>基于上游 v2.1.2.3 · Flutter 3.47.1 · Dart >=3.13.0 · GetX · media_kit</p>
+  <p>版本 = 上游版本号 + 构建时间戳（如 <code>2.1.2.3.20260830.123456</code>）</p>
 </div>
 
 ---
