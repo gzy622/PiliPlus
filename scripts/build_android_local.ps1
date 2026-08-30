@@ -142,7 +142,11 @@ $pubspecContent = Get-Content $pubspecPath -Encoding UTF8
 # 提取 versionName
 $versionLine = $pubspecContent | Where-Object { $_ -match '^\s*version:\s*([\d\.]+)\+(\d+)' } | Select-Object -First 1
 if (-not $versionLine) { Write-Err "pubspec.yaml 中找不到 version 行" }
-$upstreamVersion = $matches[1]  # e.g. 2.0.9
+$upstreamVersion = $matches[1]  # e.g. 2.1.2
+try {
+    $latestTag = (git describe --tags --abbrev=0 upstream/main 2>$null).Trim()
+    if ($latestTag -match '^[\d\.]+$') { $upstreamVersion = $latestTag }
+} catch {}
 
 # 完整版本 = 上游版本号 + 当前具体时间
 $timeStamp = Get-Date -Format 'yyyyMMdd.HHmmss'
