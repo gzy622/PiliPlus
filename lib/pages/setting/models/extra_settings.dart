@@ -406,6 +406,13 @@ List<SettingsModel> get extraSettings => [
     onChanged: (value) => DynamicsDataModel.antiGoodsDyn = value,
   ),
   SwitchModel(
+    title: '屏蔽充电专属视频',
+    leading: const Icon(Icons.electric_bolt_outlined),
+    setKey: SettingBoxKey.hideChargingExclusiveDyn,
+    defaultVal: false,
+    onChanged: (value) => DynamicsDataModel.hideChargingExclusiveDyn = value,
+  ),
+  SwitchModel(
     title: '屏蔽带货评论',
     leading: const Icon(CustomIcons.shopping_bag_not_interested),
     setKey: SettingBoxKey.antiGoodsReply,

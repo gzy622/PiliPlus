@@ -553,6 +553,9 @@ abstract final class Pref {
   static bool get antiGoodsDyn =>
       _setting.get(SettingBoxKey.antiGoodsDyn, defaultValue: false);
 
+  static bool get hideChargingExclusiveDyn =>
+      _setting.get(SettingBoxKey.hideChargingExclusiveDyn, defaultValue: false);
+
   static bool get antiGoodsReply =>
       _setting.get(SettingBoxKey.antiGoodsReply, defaultValue: false);
 

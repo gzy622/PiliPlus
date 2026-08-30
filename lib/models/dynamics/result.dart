@@ -39,6 +39,13 @@ class DynamicsDataModel {
     return title ?? '';
   }
 
+  static bool _isChargingExclusive(DynamicItemModel item) {
+    if (item.modules.moduleDynamic?.major?.archive?.badge?.text == '充电专属') {
+      return true;
+    }
+    return item.orig != null && _isChargingExclusive(item.orig!);
+  }
+
   static RegExp banWordForDyn = RegExp(
     Pref.banWordForDyn,
     caseSensitive: false,
@@ -46,11 +53,13 @@ class DynamicsDataModel {
   static bool enableFilter = banWordForDyn.pattern.isNotEmpty;
 
   static bool antiGoodsDyn = Pref.antiGoodsDyn;
+  static bool hideChargingExclusiveDyn = Pref.hideChargingExclusiveDyn;
 
   DynamicsDataModel.fromJson(
     Map<String, dynamic> json, {
     DynamicsTabType type = DynamicsTabType.all,
     Set<int>? tempBannedList,
+    bool hideChargingExclusive = false,
   }) {
     hasMore = json['has_more'];
 
@@ -66,6 +75,9 @@ class DynamicsDataModel {
                     'ADDITIONAL_TYPE_GOODS' ||
                 item.modules.moduleDynamic?.additional?.type ==
                     'ADDITIONAL_TYPE_GOODS')) {
+          continue;
+        }
+        if (hideChargingExclusive && _isChargingExclusive(item)) {
           continue;
         }
         if (enableFilter) {

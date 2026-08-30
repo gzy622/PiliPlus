@@ -52,6 +52,7 @@ abstract final class DynamicsHttp {
           res.data['data'],
           type: type,
           tempBannedList: tempBannedList,
+          hideChargingExclusive: DynamicsDataModel.hideChargingExclusiveDyn,
         );
         if (data.loadNext == true) {
           return await followDynamic(
