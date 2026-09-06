@@ -719,7 +719,15 @@ abstract final class Pref {
 
   static bool get disableSearch =>
       _setting.get(SettingBoxKey.disableSearch, defaultValue: false);
+  static bool get disableTopicJump => _setting.get(
+    SettingBoxKey.disableTopicJump,
+    defaultValue: false,
+  );
 
+  static bool get hideDynTopic => _setting.get(
+    SettingBoxKey.hideDynTopic,
+    defaultValue: false,
+  );
   static bool get hideVideoTags => _setting.get(
     SettingBoxKey.hideVideoTags,
     defaultValue: false,

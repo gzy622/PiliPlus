@@ -100,13 +100,16 @@ TextSpan? richNode(
             break;
           // 话题
           case 'RICH_TEXT_NODE_TYPE_TOPIC':
+            if (Pref.hideDynTopic) {
+              break;
+            }
+            final canTap = !Pref.disableSearch && !Pref.disableTopicJump;
             spanChildren.add(
               TextSpan(
                 text: i.origText,
-                style: Pref.disableSearch ? null : style,
-                recognizer: Pref.disableSearch
-                    ? null
-                    : (NoDeadlineTapGestureRecognizer()
+                style: canTap ? style : null,
+                recognizer: canTap
+                    ? (NoDeadlineTapGestureRecognizer()
                         ..onTap = () => Get.toNamed(
                           '/searchResult',
                           parameters: {
@@ -115,7 +118,8 @@ TextSpan? richNode(
                               i.origText!.length - 1,
                             ),
                           },
-                        )),
+                        ))
+                    : null,
               ),
             );
             break;

@@ -204,6 +204,20 @@ List<SettingsModel> get extraSettings => [
     onChanged: (val) => ItemModulesModel.showDynDispute = val,
   ),
   const SwitchModel(
+    title: '关闭话题点击跳转',
+    subtitle: '开启后点击动态中的话题不再跳转',
+    leading: Icon(Icons.link_off_rounded),
+    setKey: SettingBoxKey.disableTopicJump,
+    defaultVal: false,
+  ),
+  const SwitchModel(
+    title: '隐藏动态中的话题',
+    subtitle: '开启后不显示动态正文上方的话题标签和正文内的话题文字',
+    leading: Icon(Icons.label_off_outlined),
+    setKey: SettingBoxKey.hideDynTopic,
+    defaultVal: false,
+  ),
+  const SwitchModel(
     title: '分P/合集：倒序播放从首集开始播放',
     subtitle: '开启则自动切换为倒序首集，否则保持当前集',
     leading: Icon(MdiIcons.sort),

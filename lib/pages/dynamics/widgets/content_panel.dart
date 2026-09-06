@@ -9,6 +9,7 @@ import 'package:PiliPlus/pages/dynamics/widgets/rich_node_panel.dart';
 import 'package:PiliPlus/utils/extension/iterable_ext.dart';
 import 'package:PiliPlus/utils/extension/selectable_region_ext.dart';
 import 'package:PiliPlus/utils/page_utils.dart';
+import 'package:PiliPlus/utils/storage_pref.dart';
 import 'package:collection/collection.dart' show IterableExtension;
 import 'package:get/get.dart';
 import 'package:material_ui/material_ui.dart';
@@ -39,15 +40,17 @@ Widget content(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (moduleDynamic?.topic case final topic?)
+        if (moduleDynamic?.topic case final topic? when !Pref.hideDynTopic)
           GestureDetector(
-            onTap: () => Get.toNamed(
-              '/dynTopic',
-              parameters: {
-                'id': topic.id!.toString(),
-                'name': topic.name!,
-              },
-            ),
+            onTap: Pref.disableTopicJump
+                ? null
+                : () => Get.toNamed(
+                    '/dynTopic',
+                    parameters: {
+                      'id': topic.id!.toString(),
+                      'name': topic.name!,
+                    },
+                  ),
             child: Text.rich(
               TextSpan(
                 children: [
