@@ -1,6 +1,6 @@
 ﻿<#
 .SYNOPSIS
-    同步并合并上游 PiliPlus，随后自动验证（依赖、静态分析、debug 构建）
+    同步并合并上游 PiliPlus，随后自动验证（依赖、静态分析、release 构建）
 
 .DESCRIPTION
     一键完成：
@@ -11,7 +11,7 @@
       5. 已知 API 不兼容哨兵检查（TextPainter.layoutCache）
       6. flutter pub get（失败自动重试一次）
       7. flutter analyze（发现 error 即中止，快速失败检测）
-      8. flutter build apk --debug（arm64，可跳过）
+      8. release APK 构建（scripts/build_android_local.ps1，arm64-v8a，可跳过）
       9. 输出合并摘要与验证结果
 
     背景：上游 CI 通过 lib/scripts/patch.ps1 给 Flutter SDK 打补丁（如
@@ -23,7 +23,7 @@
     跳过拉取/预检/合并，只执行第 5-9 步。用于手动解决冲突后重跑验证。
 
 .PARAMETER SkipBuild
-    跳过第 8 步 debug 构建，只做静态检测。
+    跳过第 8 步 release 构建，只做静态检测。
 #>
 
 param(
@@ -175,15 +175,20 @@ if ($errorLines.Count -gt 0) {
 }
 Write-Ok "静态分析通过，无 error"
 
-# ─── 8. 构建验证（SkipBuild 跳过）──────────────────────────────
+# ─── 8. release 构建（SkipBuild 跳过）──────────────────────────
+# 合并任务需要交付可安装的 release APK，统一走 build_android_local.ps1：
+# release + arm64-v8a，版本号 = 上游 tag + 构建时间，产物 PiliPlus-<版本>-arm64-v8a.apk
+# 并复制到桌面。
 if (-not $SkipBuild) {
-    Write-Step "8/8  debug 构建验证..."
-    $build = Invoke-Native $flutterExe @("build", "apk", "--debug", "--target-platform", "android-arm64")
+    Write-Step "8/8  release 构建（build_android_local.ps1）..."
+    $buildScript = jp $ProjectRoot "scripts" "build_android_local.ps1"
+    $hostExe = if ($PSVersionTable.PSEdition -eq 'Core') { 'pwsh' } else { 'powershell' }
+    $build = Invoke-Native $hostExe @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $buildScript)
     $build.Output | ForEach-Object { Write-Host $_ }
-    if ($build.ExitCode -ne 0) { Write-Err "debug 构建失败，详见上方日志。" }
-    Write-Ok "debug 构建成功"
+    if ($build.ExitCode -ne 0) { Write-Err "release 构建失败，详见上方日志。" }
+    Write-Ok "release 构建成功"
 } else {
-    Write-Ok "（SkipBuild：跳过 debug 构建）"
+    Write-Ok "（SkipBuild：跳过 release 构建）"
 }
 
 # ─── 9. 摘要 ───────────────────────────────────────────────────
