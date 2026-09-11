@@ -22,16 +22,12 @@ import 'package:material_ui/material_ui.dart';
 class LiveRoomChatPanel extends StatelessWidget {
   const LiveRoomChatPanel({
     super.key,
-    required this.roomId,
     required this.liveRoomController,
     required this.isPP,
-    required this.onAtUser,
   });
 
-  final int roomId;
   final LiveRoomController liveRoomController;
   final bool isPP;
-  final ValueChanged<DanmakuMsg> onAtUser;
 
   bool get disableAutoScroll => liveRoomController.disableAutoScroll.value;
 
@@ -330,19 +326,13 @@ class LiveRoomChatPanel extends StatelessWidget {
       items: <PopupMenuEntry<Never>>[
         CustomPopupMenuItem(
           height: 38,
-          child: Text(
-            item.name,
-            style: const TextStyle(fontSize: 13),
-          ),
+          child: Text(item.name, style: const TextStyle(fontSize: 13)),
         ),
         const CustomPopupMenuDivider(height: 1),
         PopupMenuItem(
           height: 38,
           onTap: () => Utils.copyText(Utils.jsonEncoder.convert(item.toJson())),
-          child: const Text(
-            '复制弹幕信息',
-            style: TextStyle(fontSize: 13),
-          ),
+          child: const Text('复制弹幕信息', style: TextStyle(fontSize: 13)),
         ),
         PopupMenuItem(
           height: 38,
@@ -352,47 +342,39 @@ class LiveRoomChatPanel extends StatelessWidget {
             style: TextStyle(fontSize: 13),
           ),
         ),
-        PopupMenuItem(
-          height: 38,
-          onTap: () => onAtUser(item),
-          child: const Text(
-            '@TA',
-            style: TextStyle(fontSize: 13),
+        if (liveRoomController.isLogin) ...[
+          PopupMenuItem(
+            height: 38,
+            onTap: () => liveRoomController.onAtUser(item),
+            child: const Text('@TA', style: TextStyle(fontSize: 13)),
           ),
-        ),
-        PopupMenuItem(
-          height: 38,
-          onTap: () async {
-            if (!liveRoomController.isLogin) return;
-            final res = await LiveHttp.liveShieldUser(
-              uid: item.extra.mid,
-              roomid: roomId,
-              type: 1,
-            );
-            if (res.isSuccess) {
-              SmartDialog.showToast('屏蔽成功');
-            } else {
-              res.toast();
-            }
-          },
-          child: const Text(
-            '屏蔽发送者',
-            style: TextStyle(fontSize: 13),
+          PopupMenuItem(
+            height: 38,
+            onTap: () async {
+              final res = await LiveHttp.liveShieldUser(
+                uid: item.extra.mid,
+                roomid: liveRoomController.roomId,
+                type: 1,
+              );
+              if (res.isSuccess) {
+                SmartDialog.showToast('屏蔽成功');
+              } else {
+                res.toast();
+              }
+            },
+            child: const Text('屏蔽发送者', style: TextStyle(fontSize: 13)),
           ),
-        ),
-        PopupMenuItem(
-          height: 38,
-          onTap: () => HeaderControl.reportLiveDanmaku(
-            context,
-            roomId: roomId,
-            msg: item.text,
-            extra: item.extra,
+          PopupMenuItem(
+            height: 38,
+            onTap: () => HeaderControl.reportLiveDanmaku(
+              context,
+              roomId: liveRoomController.roomId,
+              msg: item.text,
+              extra: item.extra,
+            ),
+            child: const Text('举报选中弹幕', style: TextStyle(fontSize: 13)),
           ),
-          child: const Text(
-            '举报选中弹幕',
-            style: TextStyle(fontSize: 13),
-          ),
-        ),
+        ],
       ],
     ).whenComplete(() {
       if (autoScroll && context.mounted) {
