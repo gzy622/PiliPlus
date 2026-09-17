@@ -2,7 +2,7 @@
 
 ## 环境与工具链
 
-- 本机已验证可构建 Android APK：release（2026-06-13）与 debug（2026-07-31、2026-08-22，后者基于 Flutter 3.47.1）均成功。
+- 本机已验证可构建 Android APK：release（2026-06-13、2026-09-17，后者基于 Flutter 3.47.1）与 debug（2026-07-31、2026-08-22，基于 Flutter 3.47.1）均成功。
 - 工具链：Flutter 3.47.1、Dart 3.13.1、JDK 21、Gradle 9.5.0、Android SDK 36、NDK 28.2.13676358、CMake 3.22.1。
 - 本机 Flutter 位于 `C:\tools\flutter-3.47.1`，Android SDK 位于 `C:\Android`。
 - `flutter`、`dart`、Android SDK 未加入系统环境变量时，`scripts/build_android_local.ps1` 仍能通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
@@ -44,7 +44,9 @@
 - 同步上游/合并类任务必须交付 release APK：构建走 `scripts/build_android_local.ps1`，产物为 `build/app/outputs/flutter-apk/PiliPlus-<完整版本>-arm64-v8a.apk`（同时复制到桌面），只做 debug 验证不算完成。
 - 手动解决合并冲突后，用 `.\scripts\merge_upstream.ps1 -VerifyOnly` 重跑验证（跳过拉取/预检/合并）；`-SkipBuild` 可跳过最后的 release 构建（仅限静态检查场景，交付 APK 前不得使用）。
 - 合并前确保工作区干净、分支为 `main`；合并产生的兼容性修复应单独提交并在提交消息中注明修复原因。
-- 已知差异：上游 CI 通过 `lib/scripts/patch.ps1` 给 Flutter SDK 源码打补丁（如 `text_painter.patch` 暴露 `TextPainter.layoutCache`），本机本地构建不执行该补丁步骤，因此上游代码若用到本机 Flutter 未公开的 API，合并后才会暴露编译错误。
-  - `TextPainter.layoutCache` 是本机 Flutter 的内部 API（属于私有类 `_TextLayout`），应改用公开的 `computeLineMetrics()`。
+- 已知问题：合并带入依赖升级时，`merge_upstream.ps1` 中的 `flutter pub get` 会解包出未打补丁的新版本依赖（2026-09-17 合并时 `material_ui` 由 1.2.0 升到 1.3.0），其后 analyze 会报大量 error，集中表现为 `StandardBottomSheet`、`BottomSheetDefaultsM3` 等未定义，以及 `hitTestBehavior`、`horizontalDragGestureRecognizer` 等命名参数不存在。
+  - 处理：先运行 `scripts/prep_build.ps1 -SkipBuild` 重新打补丁（Flutter SDK 与 pub 缓存的 `material_ui`/`cupertino_ui`），再跑 `.\scripts\merge_upstream.ps1 -VerifyOnly`；这类报错与业务代码无关，不要据此改动代码。
+- 已知差异：上游 CI 与本机都通过 `lib/scripts/patch.ps1`（本机经 `scripts/prep_build.ps1`）给 Flutter SDK 源码打补丁，但 `merge_upstream.ps1` 只做 `pub get`，不补打补丁（见上一条）；补丁暴露的成员若返回私有类型，外部库仍无法使用，合并后才会暴露编译错误。
+  - `text_painter.patch` 暴露的 `TextPainter.layoutCache` 返回私有类型 `_TextPainterLayoutCacheWithOffset`，无法访问 `.lineMetrics`，应改用公开的 `computeLineMetrics()`。
   - 不要改动 `lib/utils/grid.dart` 中 `SliverGridLayout.layoutCache`（那是该类的自定义字段，与 TextPainter 无关）；哨兵检查只匹配 `textPainter.layoutCache` 与 `layoutCache?.lineMetrics`，避免误报。
 - 合并后必须先通过 analyze 与 release 构建验证再提交；推送 `origin` 需人工确认。
