@@ -262,7 +262,7 @@ class LiveRoomController extends GetxController {
           codecIndex: codecIndex,
           liveUrlIndex: liveUrlIndex,
         ),
-        if (isLogin && !isLoaded.value) _fetchBlockRules(),
+        if (!isLoaded.value && Accounts.heartbeat.isLogin) _fetchBlockRules(),
       ]);
       isLoaded.value = true;
     } else {
@@ -538,7 +538,7 @@ class LiveRoomController extends GetxController {
   }
 
   void initDm(LiveDmInfoData info) {
-    if (info.hostList.isNullOrEmpty) {
+    if (info.hostList.isEmpty) {
       return;
     }
     _msgStream =
