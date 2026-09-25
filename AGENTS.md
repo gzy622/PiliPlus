@@ -2,7 +2,7 @@
 
 ## 环境与工具链
 
-- 本机已验证可构建 Android APK：release（2026-06-13、2026-09-17，后者基于 Flutter 3.47.1）与 debug（2026-07-31、2026-08-22，基于 Flutter 3.47.1）均成功。
+- 本机已验证可构建 Android APK：release（2026-06-13、2026-09-17、2026-09-25，后两者基于 Flutter 3.47.1）与 debug（2026-07-31、2026-08-22，基于 Flutter 3.47.1）均成功。
 - 工具链：Flutter 3.47.1、Dart 3.13.1、JDK 21、Gradle 9.5.0、Android SDK 36、NDK 28.2.13676358、CMake 3.22.1。
 - 本机 Flutter 位于 `C:\tools\flutter-3.47.1`，Android SDK 位于 `C:\Android`。
 - `flutter`、`dart`、Android SDK 未加入系统环境变量时，`scripts/build_android_local.ps1` 仍能通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
@@ -25,6 +25,7 @@
 - `upstream`（拉取）→ `https://github.com/bggRGjQaUbCoE/PiliPlus.git`；`origin`（推送）→ `https://github.com/gzy622/PiliPlus`；`upstream` 的推送 URL 已禁用。
 - 初次 Git 化前的完整目录快照保留在分支 `baseline-local-2.0.9` 与标签 `local-baseline-2.0.9`。
 - `flutter_inappwebview` 使用 pub.dev 发布的 `6.2.0-beta.3`；不要重新加入 Android 或 Windows Git 覆盖。旧 Git 依赖在 Windows Pub 缓存会因路径过长缺少 Java 文件；稳定版 `6.1.5` 的 Android 平台包不支持 AGP 9 的 ProGuard 配置。
+- `media_kit` 系列依赖经 `dependency_overrides` 指向 `My-Responsitories/media-kit` 的 `native` 分支（1.1.11），不要改回 `upstream` 分支（1.2.6）：上游 partial revert 后的代码按 `native` 分支 API 编写（`Initializer.create` 需要首个 `mpv` 参数、`NativePlayer.setHeader` 为静态方法），混用会编译失败；该分支不含 `stream-lavf-o` 重连参数。
 
 # 首页搜索框显示规则
 
@@ -46,6 +47,7 @@
 - 合并前确保工作区干净、分支为 `main`；合并产生的兼容性修复应单独提交并在提交消息中注明修复原因。
 - 已知问题：合并带入依赖升级时，`merge_upstream.ps1` 中的 `flutter pub get` 会解包出未打补丁的新版本依赖（2026-09-17 合并时 `material_ui` 由 1.2.0 升到 1.3.0），其后 analyze 会报大量 error，集中表现为 `StandardBottomSheet`、`BottomSheetDefaultsM3` 等未定义，以及 `hitTestBehavior`、`horizontalDragGestureRecognizer` 等命名参数不存在。
   - 处理：先运行 `scripts/prep_build.ps1 -SkipBuild` 重新打补丁（Flutter SDK 与 pub 缓存的 `material_ui`/`cupertino_ui`），再跑 `.\scripts\merge_upstream.ps1 -VerifyOnly`；这类报错与业务代码无关，不要据此改动代码。
+  - 上游会同时更新补丁文件本身：2026-09-25 合并时 `material_ui` 由 1.3.0 升到 1.4.0，`lib/scripts/material/tabs.patch` 同步更新为 1.4.0 的行号（旧补丁在 1.4.0 上直接 `patch does not apply`）。因此重打补丁必须用合并后的补丁文件，顺序为先合并、再 `prep_build.ps1 -SkipBuild`（它会先删除缓存中最新版本的 `material_ui`，再由 `pub get` 重新解包并打补丁）。
 - 已知差异：上游 CI 与本机都通过 `lib/scripts/patch.ps1`（本机经 `scripts/prep_build.ps1`）给 Flutter SDK 源码打补丁，但 `merge_upstream.ps1` 只做 `pub get`，不补打补丁（见上一条）；补丁暴露的成员若返回私有类型，外部库仍无法使用，合并后才会暴露编译错误。
   - `text_painter.patch` 暴露的 `TextPainter.layoutCache` 返回私有类型 `_TextPainterLayoutCacheWithOffset`，无法访问 `.lineMetrics`，应改用公开的 `computeLineMetrics()`。
   - 不要改动 `lib/utils/grid.dart` 中 `SliverGridLayout.layoutCache`（那是该类的自定义字段，与 TextPainter 无关）；哨兵检查只匹配 `textPainter.layoutCache` 与 `layoutCache?.lineMetrics`，避免误报。
