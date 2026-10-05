@@ -210,7 +210,7 @@ class _BlackListPageState extends State<BlackListPage>
                     final mid = _blackListController.blackMids.elementAt(index);
                     return SearchText(
                       text: mid.toString(),
-                      onTap: (mid) => Get.toNamed('/member?mid=$mid'),
+                      onTap: (mid) => PageUtils.toMemberPage('/member?mid=$mid'),
                       onLongPress: (_) => showConfirmDialog(
                         context: context,
                         title: const Text('确定移除该用户？'),
