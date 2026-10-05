@@ -44,7 +44,15 @@ class PgcIntroController extends CommonIntroController {
       : '追剧';
 
   late final bool isPgc;
-  late final PgcInfoModel pgcItem;
+  late PgcInfoModel pgcItem;
+
+  ScrollController? _seasonController;
+  ScrollController seasonController(int index) {
+    if (_seasonController != null) return _seasonController!;
+    return _seasonController = ScrollController(
+      initialScrollOffset: index * 150,
+    );
+  }
 
   @override
   (Object, int) get getFavRidType => (epId!, 24);
@@ -66,6 +74,10 @@ class PgcIntroController extends CommonIntroController {
 
     super.onInit();
 
+    _onGetPgcInfo();
+  }
+
+  void _onGetPgcInfo() {
     if (isPgc) {
       if (isLogin) {
         queryIsFollowed();
@@ -195,6 +207,10 @@ class PgcIntroController extends CommonIntroController {
                     title:
                         '${pgcItem.title}${item != null ? '\n${item.showTitle}' : ''}',
                     uname: '',
+                    replyInfo: (
+                      oid: videoDetailCtr.aid,
+                      replyType: videoDetailCtr.videoType.replyType,
+                    ),
                   ),
                 );
               },
@@ -479,5 +495,43 @@ class PgcIntroController extends CommonIntroController {
     } else {
       res.toast();
     }
+  }
+
+  bool _changingSeason = false;
+  bool get changingSeason => _changingSeason;
+
+  Future<bool> changeSeason(int seasonId) async {
+    if (_changingSeason) return false;
+    _changingSeason = true;
+    SmartDialog.showLoading();
+    try {
+      final res = await SearchHttp.pgcInfo(seasonId: seasonId, epId: epId);
+      if (res case Success(:final response)) {
+        final episodes = response.episodes;
+        if (episodes != null && episodes.isNotEmpty) {
+          pgcItem = response;
+          this.seasonId = seasonId;
+          onChangeEpisode(episodes.first);
+          _onGetPgcInfo();
+          return true;
+        } else {
+          SmartDialog.showToast('剧集为空');
+        }
+      } else {
+        res.toast();
+      }
+    } catch (_) {
+    } finally {
+      SmartDialog.dismiss();
+      _changingSeason = false;
+    }
+    return false;
+  }
+
+  @override
+  void onClose() {
+    _seasonController?.dispose();
+    _seasonController = null;
+    super.onClose();
   }
 }
