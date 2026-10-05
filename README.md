@@ -657,6 +657,7 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 | `bottom_sheet_android.patch` | BottomSheet（Android 适配） | 689B |
 | `bottom_sheet_ios_piliplus.patch` | BottomSheet（iOS 适配） | 1.1KB |
 | `bottom_sheet_ios_flutter.patch` | BottomSheet（Flutter 官方修复） | 6.6KB |
+| `double_tap_gesture.patch` | DoubleTapGestureRecognizer（公开 `checkUp` 并回传 `PointerUpEvent`） | 1.4KB |
 | `geetest_ios.patch` | 极验验证（iOS） | 6.4KB |
 | `image_anim.patch` | 图片动画 | 642B |
 | `layout_builder.patch` | LayoutBuilder | 3.2KB |
@@ -683,6 +684,17 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 | **首页搜索框/我的搜索按钮隐藏** | 外观设置 | 支持隐藏首页搜索框和"我的"页搜索按钮，布局占位保留 |
 | **修改版标识** | `lib/pages/about/view.dart` | 关于页始终显示"当前为自制修改版"提示；检测到上游更新时提醒升级官方版会丢失本地定制功能 |
 | **signedDecimal 输入格式化器** | `lib/utils/filtering_text.dart` | 新增支持负号和小数的输入格式化器，用于音频延迟等需要负数输入的设置项 |
+
+---
+
+## 十三、上游同步记录（v2.1.6）
+
+- 合并上游 `Release 2.1.6`（42 个提交）。冲突集中在 `pubspec.yaml`、`pubspec.lock`、`README.md`、`lib/pages/fav_detail/widget/fav_video_card.dart`、`lib/pages/mine/view.dart`、`lib/plugin/pl_player/controller.dart`，均逐块解决，保留上游新逻辑与本地全部定制。
+- 工具链：本机实际构建使用 **`C:\tools\flutter-3.47.1`**（Dart 3.13.1），`flutter analyze` 无 error，release APK 实际构建通过。上游 2.1.6 声明 Flutter 3.47.6，但本机未据此安装或改写全局配置；`pubspec.yaml` 的 `flutter:` 约束保持本地 3.47.1。
+- 补丁：上游新增 `lib/scripts/double_tap_gesture.patch`（在 `multitap.dart` 公开 `checkUp` 并回传 `PointerUpEvent`，供 `ImageDoubleTapGestureRecognizer` 使用）；该补丁在 3.47.1 上以行偏移方式应用成功。`material_ui` 随上游升到 1.5.0，`lib/scripts/material/` 下补丁同步更新并重新打包。
+- **media_kit 系列有意保留** `My-Responsitories/media-kit` 的 `native` 分支（1.1.11）：上游将 `media_kit_video` 改指 `bggRGjQaUbCoE/media-kit`，两者 `native` 分支仅差一处 Windows 26H2 全屏修复（`windows/utils.cc` 用 `GetWindowRect` 取代 `WINDOWPLACEMENT.rcNormalPosition`），Dart/Android API 无变化，故本机 Android 构建无兼容损失；该 Windows 修复未纳入。
+- `flutter_inappwebview` 保持 pub.dev `6.2.0-beta.3`，不引入上游 6.1.5 的 Android/Windows Git 覆盖。
+- 兼容修复：上游新增的本地黑名单 Tab 跳转改走 `PageUtils.toMemberPage`，以遵循本地 `disableUserNameSpaceJump` 开关（见单独提交）。
 
 ---
 
