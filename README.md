@@ -5,7 +5,7 @@
   <p><strong>使用 Flutter 开发的 BiliBili 第三方客户端</strong></p>
   <p><strong>⚠️ 自制修改版 — 包含本地定制功能</strong></p>
   <p>中文 | <a href="README.en.md">English</a></p>
-  <p>基于上游 v2.1.6 · Flutter 3.47.1 · Dart >=3.13.0 · GetX · media_kit</p>
+  <p>基于上游 v2.1.6.1 · Flutter 3.47.7 · Dart >=3.13.0 · GetX · media_kit</p>
   <p>版本 = 上游版本号 + 构建时间戳（如 <code>2.1.2.3.20260830.123456</code>）</p>
 </div>
 
@@ -692,9 +692,18 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 - 合并上游 `Release 2.1.6`（42 个提交）。冲突集中在 `pubspec.yaml`、`pubspec.lock`、`README.md`、`lib/pages/fav_detail/widget/fav_video_card.dart`、`lib/pages/mine/view.dart`、`lib/plugin/pl_player/controller.dart`，均逐块解决，保留上游新逻辑与本地全部定制。
 - 工具链：本机实际构建使用 **`C:\tools\flutter-3.47.1`**（Dart 3.13.1），`flutter analyze` 无 error，release APK 实际构建通过。上游 2.1.6 声明 Flutter 3.47.6，但本机未据此安装或改写全局配置；`pubspec.yaml` 的 `flutter:` 约束保持本地 3.47.1。
 - 补丁：上游新增 `lib/scripts/double_tap_gesture.patch`（在 `multitap.dart` 公开 `checkUp` 并回传 `PointerUpEvent`，供 `ImageDoubleTapGestureRecognizer` 使用）；该补丁在 3.47.1 上以行偏移方式应用成功。`material_ui` 随上游升到 1.5.0，`lib/scripts/material/` 下补丁同步更新并重新打包。
-- **media_kit 系列有意保留** `My-Responsitories/media-kit` 的 `native` 分支（1.1.11）：上游将 `media_kit_video` 改指 `bggRGjQaUbCoE/media-kit`，两者 `native` 分支仅差一处 Windows 26H2 全屏修复（`windows/utils.cc` 用 `GetWindowRect` 取代 `WINDOWPLACEMENT.rcNormalPosition`），Dart/Android API 无变化，故本机 Android 构建无兼容损失；该 Windows 修复未纳入。
+- **media_kit 依赖跟随上游配置**（`upstream/main` 4ed5968f3）：`media_kit_video` 指向 `bggRGjQaUbCoE/media-kit` 的 `native` 分支（1.2.5，`fd8421d2`），其余 6 个包（`media_kit`、`media_kit_libs_android_video`、`media_kit_libs_ios_video`、`media_kit_libs_video`、`media_kit_libs_windows_video`、`media_kit_native_event_loop`）来自 `My-Responsitories/media-kit` 的 `native` 分支（`73771e`；其中核心 `media_kit` 为 1.1.11，其余包版本按上游锁文件），与上游 2.1.6 完全一致。由此 `bggRGjQaUbCoE` 分支上那处 Windows 26H2 全屏修复（`media_kit_video/windows/utils.cc` 用 `GetWindowRect` 取代 `WINDOWPLACEMENT.rcNormalPosition`）进入依赖源码；与旧的 `73771e` 相比仅此一个文件不同，Dart/Android 源码逐字节相同。Windows 原生 `Utils` 已在本机隔离隐藏窗口烟测 48 项通过，**未复现 26H2 问题、未验证整个 Windows Flutter 播放器**。
 - `flutter_inappwebview` 保持 pub.dev `6.2.0-beta.3`，不引入上游 6.1.5 的 Android/Windows Git 覆盖。
 - 兼容修复：上游新增的本地黑名单 Tab 跳转改走 `PageUtils.toMemberPage`，以遵循本地 `disableUserNameSpaceJump` 开关（见单独提交）。
+
+### 2026-10-10：同步 2.1.6.1
+
+- 合并上游至 `c2205a0ff`（18 个提交），包含 Android 暂停视频失真修复、专栏滚动修复及评论跳转、课程侧栏修复和依赖升级。Flutter 版本冲突采用上游 3.47.7。
+- 本机独立安装 `C:\tools\flutter-3.47.7`（Dart 3.13.5），保留原 3.47.1 SDK；三个本机构建入口默认定位新版本。`prep_build.ps1 -SkipBuild` 已应用 SDK 与 `material_ui 1.6.0` 补丁，`cupertino_ui` 为 1.1.2。
+- 保留合并前的依赖和文档修改；`media_kit` 来源/ref 跟随上游，`flutter_inappwebview` 保持 pub.dev `6.2.0-beta.3`。子智能体静态核查确认搜索按钮占位、备份键、修改版标识和官方升级警告仍在。
+- `merge_upstream.ps1 -VerifyOnly` 验证通过：analyze 无 error（51 条 info），arm64 release 构建成功。APK 为 `PiliPlus-2.1.6.1.20261010.201213-arm64-v8a.apk`（23.4 MB），已复制到桌面，两处 SHA256 均为 `b82da2561de1675c7bb6428147a564f2521aa24163bbc781f9529a8bf0057ad6`。
+- `aapt` 确认包名 `com.example.piliplus`、arm64-v8a、最低 Android API 24、target/compile SDK 37；`apksigner` 验证 v2 签名通过，签名证书为 Android Debug。未连接设备且无现有模拟器，未验证安装后界面和播放行为。
+
 
 ---
 

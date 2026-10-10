@@ -3,8 +3,9 @@
 ## 环境与工具链
 
 - 本机已验证可构建 Android APK：release（2026-06-13、2026-09-17、2026-09-25，后两者基于 Flutter 3.47.1）与 debug（2026-07-31、2026-08-22，基于 Flutter 3.47.1）均成功。
-- 工具链：Flutter 3.47.1、Dart 3.13.1、JDK 21、Gradle 9.5.0、Android SDK 36、NDK 28.2.13676358、CMake 3.22.1。
-- 本机 Flutter 位于 `C:\tools\flutter-3.47.1`，Android SDK 位于 `C:\Android`。
+- 2026-10-10 同步上游 `c2205a0ff` / 2.1.6.1：Flutter 3.47.7（Dart 3.13.5）下 analyze 无 error，arm64 release APK 构建成功，APK 签名校验通过；未做设备运行验证。
+- 当前 Flutter 为 3.47.7、Dart 为 3.13.5；JDK 21、Gradle 9.5.0、NDK 28.2.13676358、CMake 3.22.1。此次 APK 的 compile/target SDK 为 37，最低 API 为 24。
+- 当前本机 Flutter 位于 `C:\tools\flutter-3.47.7`，旧 `C:\tools\flutter-3.47.1` 保留；此次构建实际选择 Android SDK `C:\Users\VG622\AppData\Local\Android\Sdk`，`C:\Android` 仍为候选路径。
 - `flutter`、`dart`、Android SDK 未加入系统环境变量时，`scripts/build_android_local.ps1` 仍能通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
 - 构建脚本必须兼容 Windows PowerShell 5.1（双击运行）：调用 Java、Flutter 等原生命令时局部放宽错误流处理并依据退出码判断，避免 stderr 在全局 `Stop` 策略下触发 `NativeCommandError`。
 
@@ -25,7 +26,9 @@
 - `upstream`（拉取）→ `https://github.com/bggRGjQaUbCoE/PiliPlus.git`；`origin`（推送）→ `https://github.com/gzy622/PiliPlus`；`upstream` 的推送 URL 已禁用。
 - 初次 Git 化前的完整目录快照保留在分支 `baseline-local-2.0.9` 与标签 `local-baseline-2.0.9`。
 - `flutter_inappwebview` 使用 pub.dev 发布的 `6.2.0-beta.3`；不要重新加入 Android 或 Windows Git 覆盖。旧 Git 依赖在 Windows Pub 缓存会因路径过长缺少 Java 文件；稳定版 `6.1.5` 的 Android 平台包不支持 AGP 9 的 ProGuard 配置。
-- `media_kit` 系列依赖经 `dependency_overrides` 指向 `My-Responsitories/media-kit` 的 `native` 分支（1.1.11），不要改回 `upstream` 分支（1.2.6）：上游 partial revert 后的代码按 `native` 分支 API 编写（`Initializer.create` 需要首个 `mpv` 参数、`NativePlayer.setHeader` 为静态方法），混用会编译失败；该分支不含 `stream-lavf-o` 重连参数。
+- `media_kit` 系列依赖的仓库 / path / ref 以 PiliPlus 上游（`upstream/main`）的 `dependency_overrides` 配置为准，上游升级时随之同步，不再固定回旧的 `My-Responsitories` 来源；仅在真实编译或运行失败时定位具体 API，再决定是否偏离上游。
+  - 当前（上游 2.1.6 / `4ed5968f3`）：`media_kit_video` → `bggRGjQaUbCoE/media-kit` `native`（1.2.5 / `fd8421d2`），其余 6 包 → `My-Responsitories/media-kit` `native`（`73771e`；其中核心 `media_kit` 为 1.1.11，其余包版本按上游锁文件）。
+  - 分支警示（当前有效，非永久规则）：**当前**不可单独把某个包切到 `upstream` 分支（1.2.6）。上游 partial revert 后的业务代码按 `native` 分支 API 编写（`Initializer.create` 需要首个 `mpv` 参数、`NativePlayer.setHeader` 为静态方法），与 `upstream` 分支混用会编译失败；`native` 分支不含 `stream-lavf-o` 重连参数。该警示只约束「单独换分支」，不限制仓库来源跟随上游；若将来上游变更分支/版本，应连同业务代码的 API 调用一并同步升级，不得引用本条历史规则去恢复旧来源或旧分支。
 
 # 首页搜索框显示规则
 
