@@ -5,7 +5,7 @@
   <p><strong>使用 Flutter 开发的 BiliBili 第三方客户端</strong></p>
   <p><strong>⚠️ 自制修改版 — 包含本地定制功能</strong></p>
   <p>中文 | <a href="README.en.md">English</a></p>
-  <p>基于上游 v2.1.6.1 · Flutter 3.47.7 · Dart >=3.13.0 · GetX · media_kit</p>
+  <p>基于上游 v2.1.6.2 · Flutter 3.47.7 · Dart >=3.13.0 · GetX · media_kit</p>
   <p>版本 = 上游版本号 + 构建时间戳（如 <code>2.1.2.3.20260830.123456</code>）</p>
 </div>
 
@@ -703,6 +703,14 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 - 保留合并前的依赖和文档修改；`media_kit` 来源/ref 跟随上游，`flutter_inappwebview` 保持 pub.dev `6.2.0-beta.3`。子智能体静态核查确认搜索按钮占位、备份键、修改版标识和官方升级警告仍在。
 - `merge_upstream.ps1 -VerifyOnly` 验证通过：analyze 无 error（51 条 info），arm64 release 构建成功。APK 为 `PiliPlus-2.1.6.1.20261010.201213-arm64-v8a.apk`（23.4 MB），已复制到桌面，两处 SHA256 均为 `b82da2561de1675c7bb6428147a564f2521aa24163bbc781f9529a8bf0057ad6`。
 - `aapt` 确认包名 `com.example.piliplus`、arm64-v8a、最低 Android API 24、target/compile SDK 37；`apksigner` 验证 v2 签名通过，签名证书为 Android Debug。未连接设备且无现有模拟器，未验证安装后界面和播放行为。
+
+### 2026-10-10：同步 2.1.6.2
+
+- 合并上游 `b2d6a5bef`，无冲突。按上游将 Android 播放器的 `androidAttachSurfaceAfterVideoParameters` 设为 `false`（关联 #3238、#3239）；本地定制、依赖和工具链保持不变。
+- `scripts/merge_upstream.ps1` 完成合并、依赖安装、静态分析和 arm64 release 构建；analyze 无 error，仍有 51 条 info。
+- APK 为 `PiliPlus-2.1.6.2.20261010.222012-arm64-v8a.apk`（23.4 MB），位于 `build/app/outputs/flutter-apk/` 并已复制到桌面。SHA256：`370fcddda1b0fd0c1591ef916939c81ad40c6373613c610d3a5477957f288fab`。
+- `apksigner` 验证 v2 签名通过，证书为 Android Debug；未连接设备，未验证实际播放行为。
+
 
 
 ---
