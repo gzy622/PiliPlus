@@ -1,3 +1,5 @@
+import 'package:PiliPlus/common/widgets/badge.dart';
+import 'package:PiliPlus/models/common/video/video_quality.dart';
 import 'package:PiliPlus/models/common/video/video_type.dart';
 import 'package:PiliPlus/models_new/download/download_info.dart';
 import 'package:PiliPlus/models_new/sponsor_block/segment_item.dart';
@@ -24,6 +26,9 @@ class BiliDownloadEntryInfo with MultiSelectData {
   final String cover;
   int? videoQuality;
   int preferedVideoQuality;
+
+  /// 缓存时选择的音质，null 表示跟随设置中的默认音质
+  int? preferedAudioQuality;
   String qualityPithyDescription;
   final int guessedTotalBytes;
   int totalTimeMilli;
@@ -63,6 +68,16 @@ class BiliDownloadEntryInfo with MultiSelectData {
     }
     return title;
   }
+
+  Widget get qaBadge => PBadge(
+    text: videoQuality != null
+        ? VideoQuality.safeFromCode(videoQuality!)?.shortDesc ??
+              qualityPithyDescription
+        : qualityPithyDescription,
+    right: 6.0,
+    top: 6.0,
+    type: .gray,
+  );
 
   DownloadPageInfo toDownloadPageInfo(String pageId, {int? sortKey}) =>
       DownloadPageInfo(
@@ -152,6 +167,7 @@ class BiliDownloadEntryInfo with MultiSelectData {
     required this.cover,
     this.videoQuality,
     required this.preferedVideoQuality,
+    this.preferedAudioQuality,
     this.qualityPithyDescription = '',
     required this.guessedTotalBytes,
     required this.totalTimeMilli,
@@ -185,6 +201,7 @@ class BiliDownloadEntryInfo with MultiSelectData {
         cover: json['cover'] as String,
         videoQuality: json['video_quality'] as int?,
         preferedVideoQuality: json['prefered_video_quality'] as int,
+        preferedAudioQuality: json['prefered_audio_quality'] as int?,
         qualityPithyDescription: json['quality_pithy_description'] as String,
         guessedTotalBytes: json['guessed_total_bytes'] as int,
         totalTimeMilli: json['total_time_milli'] as int,
@@ -226,6 +243,7 @@ class BiliDownloadEntryInfo with MultiSelectData {
     'cover': cover,
     'video_quality': ?videoQuality,
     'prefered_video_quality': preferedVideoQuality,
+    'prefered_audio_quality': ?preferedAudioQuality,
     'quality_pithy_description': qualityPithyDescription,
     'guessed_total_bytes': guessedTotalBytes,
     'total_time_milli': totalTimeMilli,
