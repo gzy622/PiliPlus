@@ -30,10 +30,10 @@ $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..")
 # --- 1. Locate Flutter SDK ------------------------------------------------
 $FlutterRoot = $null
 if ($env:FLUTTER_ROOT -and (Test-Path $env:FLUTTER_ROOT)) { $FlutterRoot = $env:FLUTTER_ROOT }
-if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter-3.47.7")) { $FlutterRoot = "C:\tools\flutter-3.47.7" }
+if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter-3.47.8")) { $FlutterRoot = "C:\tools\flutter-3.47.8" }
 if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter")) { $FlutterRoot = "C:\tools\flutter" }
 if (-not $FlutterRoot) {
-    throw "Flutter SDK not found. Set FLUTTER_ROOT or install to C:\tools\flutter-3.47.7"
+    throw "Flutter SDK not found. Set FLUTTER_ROOT or install to C:\tools\flutter-3.47.8"
 }
 
 # --- 2. Locate Android SDK (must contain the required NDK) ----------------

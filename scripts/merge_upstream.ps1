@@ -92,15 +92,15 @@ if (Test-Path $fvmLink) {
 }
 if (-not $FlutterRoot -and $env:FLUTTER_ROOT -and (Test-Path $env:FLUTTER_ROOT)) { $FlutterRoot = $env:FLUTTER_ROOT }
 if (-not $FlutterRoot) {
-    $fvmPath = jp $env:USERPROFILE ".fvm" "versions" "3.47.7"
+    $fvmPath = jp $env:USERPROFILE ".fvm" "versions" "3.47.8"
     if (Test-Path $fvmPath) { $FlutterRoot = $fvmPath }
 }
-if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter-3.47.7")) { $FlutterRoot = "C:\tools\flutter-3.47.7" }
+if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter-3.47.8")) { $FlutterRoot = "C:\tools\flutter-3.47.8" }
 if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter")) { $FlutterRoot = "C:\tools\flutter" }
 if (-not $FlutterRoot) {
     try { $exe = (Get-Command flutter.bat -ErrorAction Stop).Source; $FlutterRoot = (Get-Item $exe).Directory.Parent.FullName } catch {}
 }
-if (-not $FlutterRoot) { Write-Err "找不到 Flutter SDK。先安装: fvm install 3.47.7 && fvm use" }
+if (-not $FlutterRoot) { Write-Err "找不到 Flutter SDK。先安装: fvm install 3.47.8 && fvm use" }
 Write-Ok "Flutter: $FlutterRoot"
 
 # ─── 2. 拉取上游（VerifyOnly 跳过）─────────────────────────────
