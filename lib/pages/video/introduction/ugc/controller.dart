@@ -279,7 +279,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
   int get copyright => videoDetail.value.copyright ?? 1;
 
   @override
-  (Object, int) get getFavRidType => (IdUtils.bv2av(bvid), 2);
+  (Object, int) get getFavRidType => (aid, 2);
 
   @override
   StatDetail? getStat() => videoDetail.value.stat;
@@ -505,6 +505,8 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         }
       }
 
+      final lastBvid = videoDetailCtr.bvid;
+
       videoDetailCtr
         ..plPlayerController.pause()
         ..makeHeartBeat()
@@ -515,7 +517,7 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         ..cid.value = cid
         ..queryVideoUrl();
 
-      if (this.bvid != bvid) {
+      if (lastBvid != bvid) {
         reload = true;
         aiConclusionResult = null;
 
@@ -544,7 +546,6 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         }
 
         hasLater.value = videoDetailCtr.sourceType == SourceType.watchLater;
-        this.bvid = bvid;
         queryVideoIntro();
       } else {
         if (episode is Part) {
@@ -559,7 +560,6 @@ class UgcIntroController extends CommonIntroController with ReloadMixin {
         }
       }
 
-      this.cid.value = cid;
       queryOnlineTotal();
       return true;
     } catch (e) {
