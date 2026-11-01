@@ -84,37 +84,42 @@ if (-not $VerifyOnly) {
 }
 
 # 定位 Flutter SDK（同 build_android_local.ps1 的候选逻辑）
-$FlutterRoot = $null
-$fvmLink = jp $ProjectRoot ".fvm" "flutter_sdk"
-if (Test-Path $fvmLink) {
-    $target = (Get-Item $fvmLink).Target
-    if ($target -and (Test-Path $target)) { $FlutterRoot = (Resolve-Path $target).Path }
+# .fvmrc 在合并时会被上游改写（上游升级 Flutter），所以合并后要再解析一次
+function Resolve-FlutterSdk {
+    $script:FlutterVersion = $null
+    $fvmrcPath = jp $ProjectRoot ".fvmrc"
+    if (Test-Path $fvmrcPath) {
+        try { $script:FlutterVersion = (Get-Content $fvmrcPath -Raw | ConvertFrom-Json).flutter } catch {}
+    }
+    $root = $null
+    $fvmLink = jp $ProjectRoot ".fvm" "flutter_sdk"
+    if (Test-Path $fvmLink) {
+        $target = (Get-Item $fvmLink).Target
+        if ($target -and (Test-Path $target)) { $root = (Resolve-Path $target).Path }
+    }
+    if (-not $root -and $env:FLUTTER_ROOT -and (Test-Path $env:FLUTTER_ROOT)) { $root = $env:FLUTTER_ROOT }
+    if (-not $root -and $FlutterVersion) {
+        $fvmPath = jp $env:USERPROFILE ".fvm" "versions" $FlutterVersion
+        if (Test-Path $fvmPath) { $root = $fvmPath }
+    }
+    if (-not $root -and $FlutterVersion) {
+        $versioned = jp "C:\tools" "flutter-$FlutterVersion"
+        if (Test-Path $versioned) { $root = $versioned }
+    }
+    if (-not $root -and (Test-Path "C:\tools")) {
+        $root = Get-ChildItem "C:\tools" -Directory -Filter "flutter-*" |
+            Where-Object { $_.Name -match '^flutter-\d+(\.\d+)+$' } |
+            Sort-Object { [version]($_.Name -replace '^flutter-', '') } -Descending |
+            Select-Object -First 1 -ExpandProperty FullName
+    }
+    if (-not $root -and (Test-Path "C:\tools\flutter")) { $root = "C:\tools\flutter" }
+    if (-not $root) {
+        try { $exe = (Get-Command flutter.bat -ErrorAction Stop).Source; $root = (Get-Item $exe).Directory.Parent.FullName } catch {}
+    }
+    return $root
 }
-if (-not $FlutterRoot -and $env:FLUTTER_ROOT -and (Test-Path $env:FLUTTER_ROOT)) { $FlutterRoot = $env:FLUTTER_ROOT }
-# 版本取自 .fvmrc（合并后会同步到上游要求的版本）
-$FlutterVersion = $null
-$fvmrcPath = jp $ProjectRoot ".fvmrc"
-if (Test-Path $fvmrcPath) {
-    try { $FlutterVersion = (Get-Content $fvmrcPath -Raw | ConvertFrom-Json).flutter } catch {}
-}
-if (-not $FlutterRoot -and $FlutterVersion) {
-    $fvmPath = jp $env:USERPROFILE ".fvm" "versions" $FlutterVersion
-    if (Test-Path $fvmPath) { $FlutterRoot = $fvmPath }
-}
-if (-not $FlutterRoot -and $FlutterVersion) {
-    $versioned = jp "C:\tools" "flutter-$FlutterVersion"
-    if (Test-Path $versioned) { $FlutterRoot = $versioned }
-}
-if (-not $FlutterRoot -and (Test-Path "C:\tools")) {
-    $FlutterRoot = Get-ChildItem "C:\tools" -Directory -Filter "flutter-*" |
-        Where-Object { $_.Name -match '^flutter-\d+(\.\d+)+$' } |
-        Sort-Object { [version]($_.Name -replace '^flutter-', '') } -Descending |
-        Select-Object -First 1 -ExpandProperty FullName
-}
-if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter")) { $FlutterRoot = "C:\tools\flutter" }
-if (-not $FlutterRoot) {
-    try { $exe = (Get-Command flutter.bat -ErrorAction Stop).Source; $FlutterRoot = (Get-Item $exe).Directory.Parent.FullName } catch {}
-}
+
+$FlutterRoot = Resolve-FlutterSdk
 if (-not $FlutterRoot) { Write-Err "找不到 Flutter SDK。先安装: fvm install $FlutterVersion && fvm use" }
 Write-Ok "Flutter: $FlutterRoot"
 
@@ -148,6 +153,13 @@ if (-not $VerifyOnly) {
         Write-Err "git merge 失败。手动解决冲突后重跑: .\scripts\merge_upstream.ps1 -VerifyOnly"
     }
     Write-Ok "合并完成"
+
+    # 合并可能改写 .fvmrc（上游升级 Flutter），重新解析 SDK
+    $mergedFlutterRoot = Resolve-FlutterSdk
+    if ($mergedFlutterRoot -and $mergedFlutterRoot -ne $FlutterRoot) {
+        $FlutterRoot = $mergedFlutterRoot
+        Write-Ok "合并后 Flutter SDK: $FlutterRoot"
+    }
 } else {
     Write-Step "2/8  （VerifyOnly：跳过拉取/预检/合并）"
 }
