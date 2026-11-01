@@ -63,19 +63,33 @@ if (Test-Path $fvmLink) {
 }
 # 2) FLUTTER_ROOT 环境变量
 if (-not $FlutterRoot -and $env:FLUTTER_ROOT -and (Test-Path $env:FLUTTER_ROOT)) { $FlutterRoot = $env:FLUTTER_ROOT }
-# 3) FVM 缓存
-if (-not $FlutterRoot) {
-    $fvmPath = jp $env:USERPROFILE ".fvm" "versions" "3.47.8"
+# 3) FVM 缓存（版本取自 .fvmrc）
+$FlutterVersion = $null
+$fvmrcPath = jp $ProjectRoot ".fvmrc"
+if (Test-Path $fvmrcPath) {
+    try { $FlutterVersion = (Get-Content $fvmrcPath -Raw | ConvertFrom-Json).flutter } catch {}
+}
+if (-not $FlutterRoot -and $FlutterVersion) {
+    $fvmPath = jp $env:USERPROFILE ".fvm" "versions" $FlutterVersion
     if (Test-Path $fvmPath) { $FlutterRoot = $fvmPath }
 }
-# 4) C:\tools\flutter-3.47.8（当前项目版本）
-if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter-3.47.8")) { $FlutterRoot = "C:\tools\flutter-3.47.8" }
+# 4) C:\tools\flutter-<版本>，找不到时退回版本最高的 SDK
+if (-not $FlutterRoot -and $FlutterVersion) {
+    $versioned = jp "C:\tools" "flutter-$FlutterVersion"
+    if (Test-Path $versioned) { $FlutterRoot = $versioned }
+}
+if (-not $FlutterRoot -and (Test-Path "C:\tools")) {
+    $FlutterRoot = Get-ChildItem "C:\tools" -Directory -Filter "flutter-*" |
+        Where-Object { $_.Name -match '^flutter-\d+(\.\d+)+$' } |
+        Sort-Object { [version]($_.Name -replace '^flutter-', '') } -Descending |
+        Select-Object -First 1 -ExpandProperty FullName
+}
 if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter")) { $FlutterRoot = "C:\tools\flutter" }
 # 5) 系统 PATH 上的 flutter
 if (-not $FlutterRoot) {
     try { $exe = (Get-Command flutter.bat -ErrorAction Stop).Source; $FlutterRoot = (Get-Item $exe).Directory.Parent.FullName } catch {}
 }
-if (-not $FlutterRoot) { Write-Err "找不到 Flutter SDK。先安装: fvm install 3.47.8 && fvm use" }
+if (-not $FlutterRoot) { Write-Err "找不到 Flutter SDK。先安装: fvm install $FlutterVersion && fvm use" }
 Write-Ok "Flutter: $FlutterRoot"
 
 # ─── 2. 检测 Java 21 ──────────────────────────────────────────

@@ -28,12 +28,28 @@ $ScriptDir = Split-Path -Parent $PSCommandPath
 $ProjectRoot = Resolve-Path (Join-Path $ScriptDir "..")
 
 # --- 1. Locate Flutter SDK ------------------------------------------------
+# 项目要求的 Flutter 版本取自 .fvmrc，找不到对应目录时退回 C:\tools 下版本最高的 SDK
+$FlutterVersion = $null
+$fvmrcPath = Join-Path $ProjectRoot ".fvmrc"
+if (Test-Path $fvmrcPath) {
+    try { $FlutterVersion = (Get-Content $fvmrcPath -Raw | ConvertFrom-Json).flutter } catch {}
+}
+
 $FlutterRoot = $null
 if ($env:FLUTTER_ROOT -and (Test-Path $env:FLUTTER_ROOT)) { $FlutterRoot = $env:FLUTTER_ROOT }
-if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter-3.47.8")) { $FlutterRoot = "C:\tools\flutter-3.47.8" }
+if (-not $FlutterRoot -and $FlutterVersion) {
+    $versioned = "C:\tools\flutter-$FlutterVersion"
+    if (Test-Path $versioned) { $FlutterRoot = $versioned }
+}
+if (-not $FlutterRoot -and (Test-Path "C:\tools")) {
+    $FlutterRoot = Get-ChildItem "C:\tools" -Directory -Filter "flutter-*" |
+        Where-Object { $_.Name -match '^flutter-\d+(\.\d+)+$' } |
+        Sort-Object { [version]($_.Name -replace '^flutter-', '') } -Descending |
+        Select-Object -First 1 -ExpandProperty FullName
+}
 if (-not $FlutterRoot -and (Test-Path "C:\tools\flutter")) { $FlutterRoot = "C:\tools\flutter" }
 if (-not $FlutterRoot) {
-    throw "Flutter SDK not found. Set FLUTTER_ROOT or install to C:\tools\flutter-3.47.8"
+    throw "Flutter SDK not found. Set FLUTTER_ROOT or install to C:\tools\flutter-$FlutterVersion"
 }
 
 # --- 2. Locate Android SDK (must contain the required NDK) ----------------
