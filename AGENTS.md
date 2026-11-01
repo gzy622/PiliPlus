@@ -7,7 +7,7 @@
 - 2026-10-28 同步上游 `628290b5c`：Flutter 3.47.8（Dart 3.13.7）下 analyze 无 error，arm64 release APK 构建成功，APK 签名校验通过；未做设备运行验证。
 - 2026-11-01 同步上游 `c74127908` / 2.1.6.2：Flutter 3.47.9（Dart 3.13.7）下 analyze 无 error，arm64 release APK 构建成功，APK 签名校验通过；未做设备运行验证。上游此轮把 `material_ui` 升到 1.9.0、`cupertino_ui` 升到 1.1.5 但未更新 `lib/scripts` 下的补丁，补丁在两个新版本上仍能干净应用。
 - 当前 Flutter 为 3.47.9、Dart 为 3.13.7；Gradle 9.5.0、NDK 28.2.13676358、CMake 3.22.1。此次 APK 的 compile/target SDK 为 37，最低 API 为 24。构建脚本检查到 `JAVA_HOME` 为 JDK 21，但此次 Gradle 实际使用 Android Studio 自带的 JBR 25.0.3；尚未验证本次合并在 JDK 21 下构建。
-- 当前本机 Flutter 位于 `C:\tools\flutter-3.47.9`，旧 `C:\tools\flutter-3.47.8`/`3.47.7`/`3.47.1` 保留；此次构建实际选择 Android SDK `C:\Users\VG622\AppData\Local\Android\Sdk`，`C:\Android` 仍为候选路径。
+- 当前本机 Flutter 位于 `C:\tools\flutter-3.47.9`，是 `C:\tools` 下唯一的 SDK（3.47.8 及更早版本已删除）；此次构建实际选择 Android SDK `C:\Users\VG622\AppData\Local\Android\Sdk`，`C:\Android` 仍为候选路径。
 - `flutter`、`dart`、Android SDK 未加入系统环境变量时，`scripts/build_android_local.ps1` 仍能通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
 - 三个脚本（`prep_build.ps1`、`build_android_local.ps1`、`merge_upstream.ps1`）的 Flutter 版本不再写死：从 `.fvmrc` 读取版本，优先 `C:\tools\flutter-<版本>`，缺失时退回 `C:\tools` 下版本最高的 `flutter-*`。上游升级 Flutter 时只需安装对应 SDK，无需改脚本；`merge_upstream.ps1` 在合并后重新解析一次，避免仍用合并前的旧版本执行 `pub get`。
 - 构建脚本必须兼容 Windows PowerShell 5.1（双击运行）：调用 Java、Flutter 等原生命令时局部放宽错误流处理并依据退出码判断，避免 stderr 在全局 `Stop` 策略下触发 `NativeCommandError`。
