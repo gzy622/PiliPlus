@@ -5,9 +5,11 @@
 - 本机已验证可构建 Android APK：release（2026-06-13、2026-09-17、2026-09-25，后两者基于 Flutter 3.47.1）与 debug（2026-07-31、2026-08-22，基于 Flutter 3.47.1）均成功。
 - 2026-10-10 同步上游 `c2205a0ff` / 2.1.6.1：Flutter 3.47.7（Dart 3.13.5）下 analyze 无 error，arm64 release APK 构建成功，APK 签名校验通过；未做设备运行验证。
 - 2026-10-28 同步上游 `628290b5c`：Flutter 3.47.8（Dart 3.13.7）下 analyze 无 error，arm64 release APK 构建成功，APK 签名校验通过；未做设备运行验证。
-- 当前 Flutter 为 3.47.8、Dart 为 3.13.7；Gradle 9.5.0、NDK 28.2.13676358、CMake 3.22.1。此次 APK 的 compile/target SDK 为 37，最低 API 为 24。构建脚本检查到 `JAVA_HOME` 为 JDK 21，但此次 Gradle 实际使用 Android Studio 自带的 JBR 25.0.3；尚未验证本次合并在 JDK 21 下构建。
-- 当前本机 Flutter 位于 `C:\tools\flutter-3.47.8`，旧 `C:\tools\flutter-3.47.7` 和 `C:\tools\flutter-3.47.1` 保留；此次构建实际选择 Android SDK `C:\Users\VG622\AppData\Local\Android\Sdk`，`C:\Android` 仍为候选路径。
+- 2026-11-01 同步上游 `c74127908` / 2.1.6.2：Flutter 3.47.9（Dart 3.13.7）下 analyze 无 error，arm64 release APK 构建成功，APK 签名校验通过；未做设备运行验证。上游此轮把 `material_ui` 升到 1.9.0、`cupertino_ui` 升到 1.1.5 但未更新 `lib/scripts` 下的补丁，补丁在两个新版本上仍能干净应用。
+- 当前 Flutter 为 3.47.9、Dart 为 3.13.7；Gradle 9.5.0、NDK 28.2.13676358、CMake 3.22.1。此次 APK 的 compile/target SDK 为 37，最低 API 为 24。构建脚本检查到 `JAVA_HOME` 为 JDK 21，但此次 Gradle 实际使用 Android Studio 自带的 JBR 25.0.3；尚未验证本次合并在 JDK 21 下构建。
+- 当前本机 Flutter 位于 `C:\tools\flutter-3.47.9`，旧 `C:\tools\flutter-3.47.8`/`3.47.7`/`3.47.1` 保留；此次构建实际选择 Android SDK `C:\Users\VG622\AppData\Local\Android\Sdk`，`C:\Android` 仍为候选路径。
 - `flutter`、`dart`、Android SDK 未加入系统环境变量时，`scripts/build_android_local.ps1` 仍能通过本机候选路径找到工具链，并在构建进程内设置 `ANDROID_HOME` 与 `ANDROID_SDK_ROOT`。
+- 三个脚本（`prep_build.ps1`、`build_android_local.ps1`、`merge_upstream.ps1`）的 Flutter 版本不再写死：从 `.fvmrc` 读取版本，优先 `C:\tools\flutter-<版本>`，缺失时退回 `C:\tools` 下版本最高的 `flutter-*`。上游升级 Flutter 时只需安装对应 SDK，无需改脚本；`merge_upstream.ps1` 在合并后重新解析一次，避免仍用合并前的旧版本执行 `pub get`。
 - 构建脚本必须兼容 Windows PowerShell 5.1（双击运行）：调用 Java、Flutter 等原生命令时局部放宽错误流处理并依据退出码判断，避免 stderr 在全局 `Stop` 策略下触发 `NativeCommandError`。
 
 ## 构建流程
@@ -28,7 +30,7 @@
 - 初次 Git 化前的完整目录快照保留在分支 `baseline-local-2.0.9` 与标签 `local-baseline-2.0.9`。
 - `flutter_inappwebview` 使用 pub.dev 发布的 `6.2.0-beta.3`；不要重新加入 Android 或 Windows Git 覆盖。旧 Git 依赖在 Windows Pub 缓存会因路径过长缺少 Java 文件；稳定版 `6.1.5` 的 Android 平台包不支持 AGP 9 的 ProGuard 配置。
 - `media_kit` 系列依赖的仓库 / path / ref 以 PiliPlus 上游（`upstream/main`）的 `dependency_overrides` 配置为准，上游升级时随之同步，不再固定回旧的 `My-Responsitories` 来源；仅在真实编译或运行失败时定位具体 API，再决定是否偏离上游。
-  - 当前（上游 `628290b5c`）：`media_kit_video` → `bggRGjQaUbCoE/media-kit` `native`（1.2.5 / `85f0a6`），其余 6 包 → `My-Responsitories/media-kit` `native`（`73771e`；其中核心 `media_kit` 为 1.1.11，其余包版本按上游锁文件）。
+  - 当前（上游 `c74127908`）：`media_kit_video` → `bggRGjQaUbCoE/media-kit` `native`（1.2.5 / `85f0a6`），其余 6 包 → `My-Responsitories/media-kit` `native`（`73771e`；其中核心 `media_kit` 为 1.1.11，其余包版本按上游锁文件）。
   - 分支警示（当前有效，非永久规则）：**当前**不可单独把某个包切到 `upstream` 分支（1.2.6）。上游 partial revert 后的业务代码按 `native` 分支 API 编写（`Initializer.create` 需要首个 `mpv` 参数、`NativePlayer.setHeader` 为静态方法），与 `upstream` 分支混用会编译失败；`native` 分支不含 `stream-lavf-o` 重连参数。该警示只约束「单独换分支」，不限制仓库来源跟随上游；若将来上游变更分支/版本，应连同业务代码的 API 调用一并同步升级，不得引用本条历史规则去恢复旧来源或旧分支。
 
 # 首页搜索框显示规则
