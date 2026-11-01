@@ -5,7 +5,7 @@
   <p><strong>使用 Flutter 开发的 BiliBili 第三方客户端</strong></p>
   <p><strong>⚠️ 自制修改版 — 包含本地定制功能</strong></p>
   <p>中文 | <a href="README.en.md">English</a></p>
-  <p>基于上游 v2.1.6.2 · Flutter 3.47.7 · Dart >=3.13.0 · GetX · media_kit</p>
+  <p>基于上游 v2.1.6.2 · Flutter 3.47.9 · Dart >=3.13.0 · GetX · media_kit</p>
   <p>版本 = 上游版本号 + 构建时间戳（如 <code>2.1.2.3.20260830.123456</code>）</p>
 </div>
 
@@ -35,7 +35,7 @@
 |------|------|
 | 项目名 | PiliPlus（自制修改版） |
 | 上游 | [bggRGjQaUbCoE/PiliPlus](https://github.com/bggRGjQaUbCoE/PiliPlus) |
-| 技术栈 | Flutter 3.44.8 / Dart >=3.12.0 |
+| 技术栈 | Flutter 3.47.9 / Dart >=3.13.0 |
 | 状态管理 | GetX (GetMaterialApp + GetxController + Obx/Rx) |
 | 播放引擎 | media_kit (libmpv) |
 | 网络层 | Dio (REST) + 自研 Protobuf-over-HTTP (gRPC) |
@@ -710,6 +710,18 @@ protoc 从 `.proto` 文件生成的三件套 (`.pb.dart` + `.pbenum.dart` + `.pb
 - `scripts/merge_upstream.ps1` 完成合并、依赖安装、静态分析和 arm64 release 构建；analyze 无 error，仍有 51 条 info。
 - APK 为 `PiliPlus-2.1.6.2.20261010.222012-arm64-v8a.apk`（23.4 MB），位于 `build/app/outputs/flutter-apk/` 并已复制到桌面。SHA256：`370fcddda1b0fd0c1591ef916939c81ad40c6373613c610d3a5477957f288fab`。
 - `apksigner` 验证 v2 签名通过，证书为 Android Debug；未连接设备，未验证实际播放行为。
+
+### 2026-10-28：同步 2.1.6.2
+
+- 合并上游至 `588a65611`（93 个提交）：PGC 分节、剧集/页面/季度面板重构、保留 API 提供的签名 Akamai 播放地址、桌面端播放控件与倍速调整、直播分区置顶等。
+- 工具链升级到 Flutter 3.47.8（Dart 3.13.7），`material_ui` 1.8.0、`cupertino_ui` 1.1.4 的补丁重新应用；analyze 无 error，arm64 release 构建成功，签名校验通过；未做设备运行验证。
+
+### 2026-11-01：同步 2.1.6.2
+
+- 合并上游至 `c74127908`（9 个提交）：opus 动态新增 `eva3User`/`eva3Toy`/`eva3Vote`/`eva3Comment` 与 `moduleTribee` 渲染并显示直播状态，合集收起回到列表顶部；剧集面板显示 PGC 分节并调整滚动偏移（新增 `lib/utils/scroll_offset_helper.dart`）；收藏夹与订阅详情支持分页倒序（`pageDesc`）；搜索请求改用 PC UA 并跳过验证码流程；修复倒序播放列表。
+- 工具链升级到 Flutter 3.47.9（Dart 3.13.7），本机安装 `C:\tools\flutter-3.47.9`（3.47.8 已删除）。`material_ui` 1.9.0、`cupertino_ui` 1.1.5 的补丁未随上游更新，但在新版本上仍干净应用。
+- 三个本机构建脚本改为从 `.fvmrc` 读取 Flutter 版本（优先 `C:\tools\flutter-<版本>`，缺失时取 `C:\tools` 下最高版本）；`merge_upstream.ps1` 在合并后重新解析一次，避免用合并前的旧版本执行 `pub get`。
+- `merge_upstream.ps1 -VerifyOnly` 验证通过：analyze 无 error，arm64 release 构建成功。APK 为 `PiliPlus-2.1.6.2.20261101.095735-arm64-v8a.apk`（23.7 MB），已复制到桌面，SHA256 `8e3cbf0a17c0eafd8b4c82cb084e0ce6a8c775e5c7581c359433fb989e752029`；`apksigner` 验证 v2 签名通过（Android Debug 证书），未做设备运行验证。
 
 
 

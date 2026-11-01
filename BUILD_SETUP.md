@@ -29,19 +29,22 @@ winget install "Eclipse Temurin JDK with Hotspot 21"
 ```
 装完后**设置环境变量** `JAVA_HOME` 指向安装目录（如 `C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot\`）。
 
-### 2. Flutter 3.44.8
-安装 FVM（Flutter 版本管理器）：
+### 2. Flutter（版本以 `.fvmrc` 为准）
+
+当前项目要求 **Flutter 3.47.9**。安装 FVM（Flutter 版本管理器）：
 ```
 winget install fvm
 ```
-然后在项目目录运行：
+然后在项目目录运行（版本号取自 `.fvmrc` 的 `flutter` 字段）：
 ```
-fvm install 3.44.8
-fvm use 3.44.8
+fvm install 3.47.9
+fvm use 3.47.9
 ```
 
+也可以直接把对应版本的 SDK 放到 `C:\tools\flutter-3.47.9`：`prep_build.ps1`、`build_android_local.ps1`、`merge_upstream.ps1` 都会读取 `.fvmrc` 自动定位，优先使用 `C:\tools\flutter-<版本>`，找不到时退回 `C:\tools` 下版本最高的 `flutter-*`。上游升级 Flutter 时只需安装新版本，不用改脚本。
+
 ### 3. Android SDK
-安装 [Android Studio](https://developer.android.com/studio)，然后在 SDK Manager 里安装 Android SDK Platform 36、Build-Tools 36.x、Platform-Tools、Command-line Tools 和 NDK 28.2.13676358。首次构建时 Gradle 会按需安装 CMake 3.22.1。
+安装 [Android Studio](https://developer.android.com/studio)，然后在 SDK Manager 里安装 Android SDK Platform 37、Build-Tools 37.x、Platform-Tools、Command-line Tools 和 NDK 28.2.13676358。首次构建时 Gradle 会按需安装 CMake 3.22.1。
 
 设置环境变量 `ANDROID_HOME`，指向 SDK 目录（通常是 `%LOCALAPPDATA%\Android\Sdk`）。
 
@@ -64,7 +67,7 @@ fvm use 3.44.8
 | 问题 | 原因 | 解决 |
 |---|---|---|
 | 找不到 `JAVA_HOME` | 没装 JDK 21 或没设环境变量 | 安装 JDK 21，设置 `JAVA_HOME` 环境变量 |
-| 找不到 `Flutter SDK` | 没装 FVM 或 Flutter | 运行 `fvm install 3.44.8 && fvm use` |
+| 找不到 `Flutter SDK` | 没装 FVM 或 Flutter | 按 `.fvmrc` 的版本运行 `fvm install <版本> && fvm use` |
 | 找不到 `Android SDK` | 没设 `ANDROID_HOME` | 装 Android Studio，设置 `ANDROID_HOME` |
 | 构建时报网络错误 | 下载依赖超时 | 检查网络/代理/VPN，重试 |
 | 构建失败提示 `TLS` | 本机网络环境问题 | 脚本会自动修复，重试即可 |
